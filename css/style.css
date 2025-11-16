@@ -1,0 +1,42 @@
+body {
+  margin: 0 auto;
+  padding: 20px;
+  max-width: 600px;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+button, input {
+    box-sizing: border-box;
+  padding: 10px;
+  width: 100%;
+  margin: 8px 0;
+}
+
+button {
+  border-radius: 5px;
+  border: none;
+}
+
+#gpsButton {
+  background: blue;
+  color: white;
+}
+
+#addressButton {
+  background: gray;
+  color: white;
+}
+
+#result {
+  margin-top: 16px;
+  border-top: 1px solid #ccc;
+  padding-top: 12px;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
