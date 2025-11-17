@@ -1,5 +1,45 @@
+const gpsButton = document.getElementById('gpsButton');
+const addressButton = document.getElementById('addressButton');
+const addressInput = document.getElementById('addressInput');
+const result = document.getElementById('result');
+
 gpsButton.addEventListener('click', onLocate);
 addressButton.addEventListener('click', onAddress);
+
+function showParkingResult({response, closeParkings}, userCoords) {
+    let content = `<h3>Position actuelle : ${response.originAddresses[0]}</h3>`;
+
+    for (const parking of closeParkings) {
+        const destAddress = response.destinationAddresses[parking.indice];
+        const distance = response.rows[0].elements[parking.indice].distance.value;
+        const duration = response.rows[0].elements[parking.indice].duration.text;
+        const mapsURL = buildGoogleMapsURL(userCoords, parking.coords);
+        const pricing = parking.parkingDetails.parking.properties.cout;
+        const type = parking.parkingDetails.parking.properties.typ;
+        const freePlaces = parking.parkingDetails.parking.properties.place_libre;
+        const totalPlaces = parking.parkingDetails.parking.properties.place_total;
+
+        content += `
+        <div style="border:1px solid #ccc; padding:10px; border-radius:8px;">
+            <h4>${destAddress}</h4>
+            <p><strong>Distance :</strong> ${distance} mètres</p>
+            <p><strong>Durée estimée :</strong> ${duration}</p>
+            <p><strong>Tarification :</strong> ${ pricing ? capitalizeFirstLetter(pricing) : "Non renseigné"}</p>
+            <p><strong>Type :</strong> ${ type ? capitalizeFirstLetter(type) : "Non renseigné"}</p>
+            ${freePlaces && totalPlaces ? `<p><strong>Places totales :</strong> ${totalPlaces}</p>
+            <p><strong>Places libres :</strong> ${freePlaces}</p>`: `<p style="color:gray;">Disponibilité non vérifiable</p>`}
+        <button class="showMapBtn">Voir sur la carte</button>
+            <a href="${mapsURL}" target="_blank"><button>Itinéraire Google Maps</button></a>
+        </div>
+        `;
+    }
+    result.innerHTML = content;
+
+    document.querySelectorAll('.showMapBtn').forEach((btn, index) => {
+        const parking = closeParkings[index];
+        btn.addEventListener('click', () => showMap(userCoords, parking.coords));
+    });
+}
 
 async function onLocate() {
     result.textContent = 'Localisation (tentatives en cours)...';
