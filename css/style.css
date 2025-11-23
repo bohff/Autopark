@@ -1,49 +1,136 @@
+/* Global */
 body {
-  margin: 0 auto;
-  padding: 20px;
-  max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 600px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0faf0;
+    color: #1a3d1a; 
 }
 
+/* Titre de l'app */
+#appTitle {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #1b5e20;
+    margin-bottom: 10px;
+}
+
+/* Sous-titre */
 h1 {
-  margin-top: 0;
+    margin-top: 0;
+    color: #2e7d32;
+    text-align: center;
+    font-size: 1.4rem; 
 }
 
-button, input {
-    box-sizing: border-box;
-  padding: 10px;
-  width: 100%;
-  margin: 8px 0;
+/* Formulaire */
+#formContainer {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
 }
 
+#formContainer div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; 
+}
+
+
+
+/* Labels */
+label {
+    font-weight: 600;
+}
+
+/* Inputs */
+input {
+    border: 1px solid #a5d6a7;
+    border-radius: 12px;
+    padding: 12px 0; 
+    width: 100%;
+    font-size: 16px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+/* Boutons généraux */
 button {
-  border-radius: 5px;
-  border: none;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 6px;
 }
 
+/* Boutons spécifiques */
 #gpsButton {
-  background: blue;
-  color: white;
+    background: #2e7d32;
+    color: white;
+    margin-bottom: 12px;
 }
 
 #addressButton {
-  background: gray;
-  color: white;
+    background: #66bb6a;
+    color: white;
 }
 
+.showMapBtn {
+    background: #43a047;
+    color: white;
+}
+
+/* Resultat et parkings */
 #result {
-  margin-top: 16px;
-  border-top: 1px solid #ccc;
-  padding-top: 12px;
+    margin-top: 16px;
 }
 
+.parkingItem {
+    background-color: #ffffff;
+    border-left: 6px solid #66bb6a;
+    padding: 15px 18px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.parkingItem h4 {
+    margin: 0 0 6px 0;
+    color: #2e7d32;
+    font-size: 1.1rem;
+}
+
+.parkingItem p {
+    margin: 4px 0;
+    font-size: 0.95rem;
+}
+
+/* Erreurs */
 .error {
-  color: red;
-  font-weight: bold;
+    color: #b71c1c;
+    font-weight: bold;
+    margin-top: 10px;
 }
 
-#map {
-  height: 400px; 
-  width: 100%;
-  border-radius: 0.5rem;
-  margin-top: 1.5rem;
+/* Liens Google Maps */
+a button {
+    background: #1b5e20;
+    margin-top: 6px;
+    color: white;
 }
+/* Affichage Maps */
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
+}
+

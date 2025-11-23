@@ -5,32 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autopark - Guidage Parking Metz</title>
     <link rel="stylesheet" href="./css/style.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0x46slqtPOs21EXI_eSnhvC5LvXksJns&v=weekly">
-    </script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0x46slqtPOs21EXI_eSnhvC5LvXksJns&v=weekly"></script>
 </head>
-
 <body>
 
+  <div id="appTitle">Autopark</div>
+  <div id="formContainer">
   <h1>Trouver la place de stationnement la plus proche</h1>
+    <div>
+      <button id="gpsButton">Me géolocaliser (GPS)</button>
+    </div>
 
-  <div>
-    <button id="gpsButton">Me géolocaliser (GPS)</button>
-  </div>
-
-  <div>
-    <label for="addressInput"><strong>Ou adresse de départ :</strong></label>
-    <input id="addressInput" placeholder="Ex: 1 Rue de la République, Metz">
-    <button id="addressButton">Depuis l'adresse</button>
+    <div>
+      <label for="addressInput"><strong>Ou adresse de départ :</strong></label>
+      <input id="addressInput" placeholder="Ex: 1 Rue de la République, Metz">
+      <button id="addressButton">Depuis l'adresse</button>
+    </div>
   </div>
 
   <div id="result"><p>Choisissez une option.</p></div>
   <div id="map"></div>
   <div id="directionPanel"></div>
   
-  <script src="./js/map.js"></script>
   <script src="./js/utils.js"></script>
+  <script src="./js/map.js"></script>
   <script src="./js/api.js"></script>
   <script src="./js/app.js"></script>
 </body>
+
 </html>
