@@ -20,6 +20,7 @@ function showParkingResult({response, closeParkings}, userCoords) {
         const destAddress = response.destinationAddresses[parking.indice];
         const distance = response.rows[0].elements[parking.indice].distance.value;
         const duration = response.rows[0].elements[parking.indice].duration.text;
+        const mapsURL = buildGoogleMapsURL(userCoords, parking.coords);
         const pricing = parking.parkingDetails.parking.properties.cout;
         const type = parking.parkingDetails.parking.properties.typ;
         const freePlaces = parking.parkingDetails.parking.properties.place_libre;
@@ -34,7 +35,8 @@ function showParkingResult({response, closeParkings}, userCoords) {
             <p><strong>Type :</strong> ${ type ? capitalizeFirstLetter(type) : "Non renseigné"}</p>
             ${freePlaces && totalPlaces ? `<p><strong>Places totales :</strong> ${totalPlaces}</p>
             <p><strong>Places libres :</strong> ${freePlaces}</p>`: `<p style="color:gray;">Disponibilité non vérifiable</p>`}
-            <button class="showMapBtn">Y aller</button>
+            ${mode !== "address" ? `<button class="showMapBtn">Y aller</button>` : ""}
+            <a href="${mapsURL}" target="_blank"><button>Itinéraire Google Maps</button></a>
         </div>
         `;
     }
