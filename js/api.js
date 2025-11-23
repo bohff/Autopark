@@ -1,38 +1,25 @@
-function getUserLocation() {
-    return new Promise((resolve, reject) => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const LatLng = {lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy};
-                    resolve(LatLng)
-                },
-                (error) => {
-                    reject(error);
-                }
-            )
-        } else {
-            reject(new Error('Géolocation non supportée'))
-        }
-    })
-}
-
 async function getUserAccurateLocation() {
-    let bestPosition = null;
-    for (let i=0; i<= 9; i++) {
-        const position = await getUserLocation();
-
-        if (bestPosition === null || position.accuracy < bestPosition.accuracy) {
-            bestPosition = position;
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            return reject(new Error("Géolocalisation non supportée"));
         }
 
-        if (bestPosition && bestPosition.accuracy < 150) {
-            return bestPosition;
-        }
-
-        if (i === 9) {
-            throw new Error('Précision insuffisante (< ' + 150 + ' m). Meilleure: ' + Math.round(bestPosition.accuracy) + ' m après ' + (i+1) + ' tentatives.');
-        }
-    }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    accuracy: position.coords.accuracy
+                });
+            },
+            (error) => reject(error),
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            }
+        );
+    });
 }
 
 async function geocodeAddress(address) {
@@ -60,7 +47,7 @@ function buildGoogleMapsURL(origin, destination) {
 }
 
 async function fetchParkings() {
-  const url = 'https://maps.eurometropolemetz.eu/public/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:pub_tsp_sta&srsName=EPSG:4326&outputFormat=application%2Fjson&cql_lter=id%20is%20not%20null';
+  const url = 'https://maps.eurometropolemetz.eu/public/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:pub_tsp_sta&srsName=EPSG:4326&outputFormat=application%2Fjson';
   
   const res = await fetch(url);
 
@@ -117,9 +104,7 @@ async function getCloseParkings(userCoords) {
         }
         getDistanceMatrixParkings.sort((a,b) => a.distance - b.distance);
         
-        // const closeParkings = getDistanceMatrixParkings.slice(0,5);
-        // Only returns the nearest one for now
-        const closeParkings = getDistanceMatrixParkings.slice(0,1);
+        const closeParkings = getDistanceMatrixParkings.slice(0,5);
         resolve({response, closeParkings});
         } else {
         reject(new Error('Erreur:', status))

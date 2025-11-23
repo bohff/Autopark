@@ -32,3 +32,13 @@ function formatDestinationForDistanceMatrixAPI(destinationsArray) {
   return destinationsArray
   .map(({lat, lng}) => `${lat},${lng}`)
 }
+
+function normalizeLatLng(p) {
+    if (typeof p.lat === 'function' && typeof p.lng === 'function') {
+      return { lat: p.lat(), lng: p.lng() };
+    }
+    if (typeof p.lat === 'number' && typeof p.lng === 'number') {
+      return { lat: p.lat, lng: p.lng };
+    }
+    return null;
+}

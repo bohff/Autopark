@@ -3,6 +3,8 @@ const addressButton = document.getElementById('addressButton');
 const addressInput = document.getElementById('addressInput');
 const result = document.getElementById('result');
 
+let mode = null;
+
 gpsButton.addEventListener('click', onLocate);
 addressButton.addEventListener('click', onAddress);
 
@@ -28,7 +30,7 @@ function showParkingResult({response, closeParkings}, userCoords) {
             <p><strong>Type :</strong> ${ type ? capitalizeFirstLetter(type) : "Non renseigné"}</p>
             ${freePlaces && totalPlaces ? `<p><strong>Places totales :</strong> ${totalPlaces}</p>
             <p><strong>Places libres :</strong> ${freePlaces}</p>`: `<p style="color:gray;">Disponibilité non vérifiable</p>`}
-        <button class="showMapBtn">Voir sur la carte</button>
+            ${mode !== "address" ? `<button class="showMapBtn">Y aller</button>` : ""}
             <a href="${mapsURL}" target="_blank"><button>Itinéraire Google Maps</button></a>
         </div>
         `;
@@ -42,6 +44,7 @@ function showParkingResult({response, closeParkings}, userCoords) {
 }
 
 async function onLocate() {
+    mode = "gps";
     result.textContent = 'Localisation (tentatives en cours)...';
     try {
         const userLocation = await getUserAccurateLocation();
@@ -57,6 +60,7 @@ async function onLocate() {
 }
 
 async function onAddress() {
+    mode = "address";
     const address = addressInput.value.trim();
     if (!address) {
         result.innerHTML = '<p class="error">Adresse manquante.</p>';
