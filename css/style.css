@@ -8,6 +8,83 @@ body {
     color: #1a3d1a; 
 }
 
+/* Header */
+#mainHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #a5d6a7;
+}
+
+#mainHeader .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1b5e20;
+    text-decoration: none;
+}
+
+#mainHeader .header-nav {
+    display: flex;
+    gap: 20px;
+}
+
+#mainHeader .header-nav a {
+    color: #2e7d32;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#mainHeader .header-nav a:hover {
+    text-decoration: underline;
+}
+
+#mainHeader .header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#mainHeader #userNameHeader {
+    color: #1a3d1a;
+    font-weight: 600;
+}
+
+#mainHeader .btn-login,
+#mainHeader .btn-register,
+#mainHeader .btn-logout {
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+#mainHeader .btn-login {
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+}
+
+#mainHeader .btn-register {
+    background: #2e7d32;
+    color: white;
+}
+
+#mainHeader .btn-logout {
+    color: #c62828;
+    border: 1px solid #c62828;
+}
+
+#mainHeader .btn-login:hover,
+#mainHeader .btn-logout:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+#mainHeader .btn-register:hover {
+    background: #1b5e20;
+}
+
 /* Titre de l'app */
 #appTitle {
     text-align: center;
@@ -134,3 +211,194 @@ a button {
     margin-top: 1.5rem;
 }
 
+/* Menu utilisateur */
+#userMenu {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+    font-size: 0.9rem;
+}
+
+#userMenu a {
+    color: #2e7d32;
+    text-decoration: none;
+}
+
+#userMenu a:hover {
+    text-decoration: underline;
+}
+
+#userMenu span {
+    color: #1a3d1a;
+    font-weight: 600;
+}
+
+/* Checkbox group */
+.checkboxGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.checkboxGroup label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.checkboxGroup input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+/* Select */
+select {
+    border: 1px solid #a5d6a7;
+    border-radius: 12px;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    background: white;
+}
+
+/* Titres sections profil */
+#formContainer h3 {
+    color: #1b5e20;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #a5d6a7;
+}
+
+/* Avertissement PMR */
+.warning-pmr {
+    background-color: #fff3e0;
+    border: 1px solid #ffb74d;
+    border-left: 4px solid #ff9800;
+    color: #e65100;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* Bouton supprimer */
+.deleteBtn {
+    background: #c62828;
+    color: white;
+    margin-top: 10px;
+}
+
+.deleteBtn:hover {
+    background: #b71c1c;
+}
+
+/* Numéro de trajet dans l'historique */
+.trajetNumber {
+    display: inline-block;
+    background: #1a73e8;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+/* Dark Mode */
+body.darkmode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.darkmode #appTitle {
+    color: #81c784;
+}
+
+body.darkmode h1 {
+    color: #a5d6a7;
+}
+
+body.darkmode #formContainer {
+    background: #2d2d2d;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+body.darkmode .parkingItem {
+    background-color: #2d2d2d;
+    border-left-color: #81c784;
+}
+
+body.darkmode .parkingItem h4 {
+    color: #a5d6a7;
+}
+
+body.darkmode input,
+body.darkmode select {
+    background: #3d3d3d;
+    border-color: #4a4a4a;
+    color: #e0e0e0;
+}
+
+body.darkmode button {
+    background: #388e3c;
+}
+
+body.darkmode #gpsButton {
+    background: #388e3c;
+}
+
+body.darkmode #addressButton {
+    background: #66bb6a;
+}
+
+body.darkmode #userMenu a {
+    color: #81c784;
+}
+
+body.darkmode #userMenu span {
+    color: #e0e0e0;
+}
+
+body.darkmode #mainHeader {
+    border-bottom-color: #4a4a4a;
+}
+
+body.darkmode #mainHeader .logo {
+    color: #81c784;
+}
+
+body.darkmode #mainHeader .header-nav a {
+    color: #a5d6a7;
+}
+
+body.darkmode #mainHeader #userNameHeader {
+    color: #e0e0e0;
+}
+
+body.darkmode #mainHeader .btn-login {
+    color: #81c784;
+    border-color: #81c784;
+}
+
+body.darkmode #mainHeader .btn-register {
+    background: #388e3c;
+}
+
+body.darkmode #mainHeader .btn-logout {
+    color: #ef5350;
+    border-color: #ef5350;
+}
+
+body.darkmode #mainHeader .btn-login:hover,
+body.darkmode #mainHeader .btn-logout:hover {
+    background: rgba(255,255,255,0.1);
+}

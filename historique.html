@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autopark - Historique</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0x46slqtPOs21EXI_eSnhvC5LvXksJns&v=weekly"></script>
+</head>
+<body>
+    
+    <div id="formContainer" style="max-width: 900px;">
+        <h1>Historique des trajets</h1>
+        
+        <div id="historiqueMap" style="width: 100%; height: 400px; border-radius: 8px; margin-bottom: 20px;"></div>
+        
+        <div id="historiqueList" style="margin-bottom: 20px;">
+            <h3>Liste des trajets :</h3>
+            <div id="trajetsContainer"></div>
+        </div>
+        
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="index.html">Retour à l'accueil</a>
+        </p>
+    </div>
+    
+    <script src="./js/auth.js"></script>
+    <script src="./js/header.js"></script>
+    <script>
+        // Rediriger si non connecté
+        if (!isLoggedIn()) {
+            window.location.href = 'login.html';
+        }
+        
+        async function loadHistorique() {
+            const mapContainer = document.getElementById('historiqueMap');
+            const listContainer = document.getElementById('trajetsContainer');
+            
+            try {
+                // Récupérer les trajets depuis MongoDB
+                const trajets = await getHistorique();
+                console.log('Trajets récupérés:', trajets);
+                
+                // Trier les trajets par date décroissante (plus récents en premier)
+                trajets.sort((a, b) => new Date(b.date_trajet) - new Date(a.date_trajet));
+                
+                // Afficher la liste textuelle
+                if (trajets.length === 0) {
+                    listContainer.innerHTML = '<p style="color:#666;">Aucun trajet enregistré.</p>';
+                } else {
+                    let html = '<ul style="list-style: none; padding: 0;">';
+                    trajets.forEach(trajet => {
+                        const date = new Date(trajet.date_trajet).toLocaleDateString('fr-FR');
+                        html += `<li style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>${trajet.destination_nom || 'Destination inconnue'}</strong><br>
+                            <small>📅 ${date} | ⏱️ ${trajet.duree} | 📏 ${trajet.distance}km</small><br>
+                            <small>📍 ${trajet.origine || 'Origine inconnue'}</small>
+                        </li>`;
+                    });
+                    html += '</ul>';
+                    listContainer.innerHTML = html;
+                }
+                
+                console.log('Trajets récupérés:', trajets);
+                
+                // Créer la carte centrée sur Metz
+                const map = new google.maps.Map(mapContainer, {
+                    zoom: 12,
+                    center: { lat: 49.1193, lng: 6.1757 },
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: false
+                });
+                
+                const bounds = new google.maps.LatLngBounds();
+                
+                // Compter les visites par parking (même nom = même parking)
+                const compteurVisites = {};
+                trajets.forEach(trajet => {
+                    const nom = trajet.destination_nom;
+                    compteurVisites[nom] = (compteurVisites[nom] || 0) + 1;
+                });
+                
+                // Pour éviter plusieurs marqueurs au même endroit, on garde le premier de chaque parking
+                const parkingsAffiches = [];
+                
+                // Ajouter un marqueur pour chaque trajet
+                trajets.forEach(trajet => {
+                // Si ce parking est déjà affiché, on skip
+                if (parkingsAffiches.includes(trajet.destination_nom)) return;
+                parkingsAffiches.push(trajet.destination_nom);
+                
+                const position = { lat: trajet.destination_lat, lng: trajet.destination_lng };
+                const visites = compteurVisites[trajet.destination_nom];
+                
+                // Créer le marqueur
+                const marker = new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: trajet.destination_nom
+                });
+                
+                // Popup au clic
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<div style="color:#333;">
+                        <strong>${trajet.destination_nom}</strong><br>
+                        ${visites} visite${visites > 1 ? 's' : ''}
+                    </div>`
+                });
+                
+                marker.addListener('click', () => infoWindow.open(map, marker));
+                
+                bounds.extend(position);
+            });
+            
+            // Ajuster le zoom pour voir tous les marqueurs
+            map.fitBounds(bounds);
+            
+            } catch (error) {
+                console.error('Erreur chargement historique:', error);
+                mapContainer.innerHTML = '<p style="text-align:center; padding:50px; color:#f44336;">Erreur lors du chargement de l\'historique.</p>';
+                mapContainer.style.background = '#ffebee';
+                listContainer.innerHTML = '<p style="color:#f44336;">Erreur de chargement.</p>';
+            }
+        }
+        
+        loadHistorique();
+    </script>
+</body>
+</html>

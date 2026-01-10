@@ -1,7 +1,7 @@
 async function getUserAccurateLocation() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-            return reject(new Error("Géolocalisation non supportée"));
+            return reject(new Error("Géolocalisation non supportée par votre navigateur"));
         }
 
         navigator.geolocation.getCurrentPosition(
@@ -12,7 +12,22 @@ async function getUserAccurateLocation() {
                     accuracy: position.coords.accuracy
                 });
             },
-            (error) => reject(error),
+            (error) => {
+                // Messages d'erreur plus clairs
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        reject(new Error("Vous avez refusé l'accès à la localisation. Autorisez-la dans les paramètres de votre navigateur."));
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        reject(new Error("Position indisponible. Vérifiez que le GPS est activé."));
+                        break;
+                    case error.TIMEOUT:
+                        reject(new Error("Délai dépassé. Réessayez ou utilisez une adresse."));
+                        break;
+                    default:
+                        reject(new Error("Erreur de localisation inconnue."));
+                }
+            },
             {
                 enableHighAccuracy: true,
                 maximumAge: 0,
@@ -23,8 +38,7 @@ async function getUserAccurateLocation() {
 }
 
 async function geocodeAddress(address) {
-    const searchQuery = address + ', Metz, France';
-    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fr&q=' + encodeURIComponent(searchQuery);
+    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
 
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
@@ -38,6 +52,44 @@ async function geocodeAddress(address) {
     return LatLng;
 }
 
+async function reverseGeocode(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+    
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+    
+    const jsonRes = await res.json();
+    return jsonRes;
+}
+
+async function detectCity(lat, lng) {
+    const geoData = await reverseGeocode(lat, lng);
+    const address = geoData.address;
+    
+    // Récupérer le nom de la ville
+    const ville = address.city || address.town || address.municipality || '';
+    const county = address.county || '';
+    const state = address.state || '';
+    
+    // Metz
+    if (ville === 'Metz') {
+        return { city: 'metz' };
+    }
+    
+    // Londres - inclut tous les boroughs
+    if (address.country === 'United Kingdom' && (
+        ville === 'London' ||
+        ['Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 'Hammersmith', 'Kensington', 'Chelsea', 'Bromley', 'Croydon', 'Sutton', 'Merton', 'Kingston', 'Richmond', 'Hounslow', 'Hillingdon', 'Harrow', 'Brent', 'Ealing', 'Barnet', 'Hertsmere', 'Enfield'].some(borough => 
+            ville.includes(borough)
+        )
+    )) {
+        return { city: 'london' };
+    }
+    
+    // Ville non supportée - on garde le nom pour le message d'erreur
+    return { city: null, detectedName: ville || county || 'Inconnue' };
+}
+
 function buildGoogleMapsURL(origin, destination) {
   const originString = origin.lat + ',' + origin.lng;
   const destinationString = destination.lat + ',' + destination.lng;
@@ -46,7 +98,7 @@ function buildGoogleMapsURL(origin, destination) {
          '&destination=' + encodeURIComponent(destinationString) + '&travelmode=driving';
 }
 
-async function fetchParkings() {
+async function fetchParkingsMetz() {
   const url = 'https://maps.eurometropolemetz.eu/public/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:pub_tsp_sta&srsName=EPSG:4326&outputFormat=application%2Fjson';
   
   const res = await fetch(url);
@@ -58,9 +110,94 @@ async function fetchParkings() {
   return resJson.features;
 }
 
-async function getCloseParkings(userCoords) {
+async function fetchParkingsLondon() {
+  const url = 'https://api.tfl.gov.uk/Place/Type/CarPark?app_key=a4ede2ed3a0f4b2fa40a10a0e2de518b';
+  
+  const res = await fetch(url);
+
+  if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+
+  const resJson = await res.json();
+
+  // Transformer les données TfL au format attendu
+  return resJson.map(parking => {
+    // Extraire les infos des additionalProperties
+    const props = parking.additionalProperties || [];
+    
+    function getProp(key) {
+      const prop = props.find(p => p.key === key);
+      return prop ? prop.value : null;
+    }
+    
+    const tarif = getProp('StandardTariffsCashDaily');
+    const nbPlaces = getProp('NumberOfSpaces');
+    const hasLift = getProp('Lifts');
+    const maxHeight = getProp('MaxHeightMetres');
+    
+    // Déterminer le type : si hauteur max ou ascenseur, c'est probablement couvert
+    let type = 'aérien'; // Par défaut extérieur
+    if (maxHeight || (hasLift && parseInt(hasLift) > 0)) {
+      type = 'souterrain';
+    }
+    
+    return {
+      geometry: {
+        coordinates: [parking.lon, parking.lat]
+      },
+      properties: {
+        nom: parking.commonName,
+        lib: parking.commonName,
+        typ: type,
+        cout: tarif ? 'payant' : 'gratuit',
+        tarif_journalier: tarif ? `${tarif}£` : null,
+        place_libre: null,
+        place_total: nbPlaces ? parseInt(nbPlaces) : null
+      }
+    };
+  });
+}
+
+async function getCloseParkings(userCoords, userProfil = null) {
 // const userCoords = {lat: 49.119682, lng: 6.1589498, accuracy: 14.762};
-  const parkingList = await fetchParkings();
+  
+  // Détecter la ville
+  const cityResult = await detectCity(userCoords.lat, userCoords.lng);
+  
+  if (cityResult.city === null) {
+    throw new Error(`Votre ville (${cityResult.detectedName}) n'est pas prise en charge par notre application. Actuellement, seules les villes de Metz et Londres sont disponibles.`);
+  }
+  
+  // Récupérer les parkings selon la ville
+  let parkingList;
+  if (cityResult.city === 'metz') {
+    parkingList = await fetchParkingsMetz();
+  } else if (cityResult.city === 'london') {
+    parkingList = await fetchParkingsLondon();
+  }
+  
+  // Appliquer les filtres de préférences utilisateur
+  let filteredParkings = parkingList;
+
+  // Filtre par tarification
+  if (userProfil && userProfil.tarification && userProfil.tarification !== 'tous') {
+    filteredParkings = filteredParkings.filter(p => {
+      const cout = (p.properties.cout || '').toLowerCase();
+      const userTarif = userProfil.tarification.toLowerCase();
+      return cout === userTarif;
+    });
+  }
+
+  // Filtre par type de parking
+  if (userProfil && userProfil.type_parking && userProfil.type_parking !== 'tous') {
+    filteredParkings = filteredParkings.filter(p => {
+      const typ = (p.properties.typ || '').toLowerCase();
+      const userType = userProfil.type_parking.toLowerCase();
+      return typ === userType;
+    });
+  }
+
+  // Utiliser les parkings filtrés (tous les filtres appliqués)
+  parkingList = filteredParkings;
 
   const parkingsAndDistances = [];
 
@@ -92,22 +229,38 @@ async function getCloseParkings(userCoords) {
   const getDistanceMatrixParkings = [];
 
   return new Promise((resolve, reject) => {
+    // Timeout de 15 secondes pour éviter le blocage infini
+    const timeout = setTimeout(() => {
+      reject(new Error('Délai dépassé. Le service Google Maps ne répond pas. Réessayez.'));
+    }, 15000);
+    
     const service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix({
         origins: [formattedUserCoords],
         destinations: formattedDestinations,
         travelMode: google.maps.TravelMode.DRIVING,
     }, (response, status) => {
-        if (status === 'OK') {
-        for (let i=0; i< 25; i++) {
-            getDistanceMatrixParkings.push({distance: response.rows[0].elements[i].distance.value, indice: i, coords: {lat:destinationsArray[i].lat, lng:destinationsArray[i].lng}, parkingDetails: destinationsArray[i].parkingDetails})
-        }
-        getDistanceMatrixParkings.sort((a,b) => a.distance - b.distance);
+        clearTimeout(timeout);
         
-        const closeParkings = getDistanceMatrixParkings.slice(0,5);
-        resolve({response, closeParkings});
+        if (status === 'OK') {
+          for (let i=0; i < destinationsArray.length; i++) {
+            if (response.rows[0].elements[i] && response.rows[0].elements[i].distance) {
+              getDistanceMatrixParkings.push({
+                distance: response.rows[0].elements[i].distance.value, 
+                indice: i, 
+                coords: {lat: destinationsArray[i].lat, lng: destinationsArray[i].lng}, 
+                parkingDetails: destinationsArray[i].parkingDetails
+              });
+            }
+          }
+          getDistanceMatrixParkings.sort((a,b) => a.distance - b.distance);
+          
+          const closeParkings = getDistanceMatrixParkings.slice(0,5);
+          resolve({response, closeParkings});
+        } else if (status === 'OVER_QUERY_LIMIT') {
+          reject(new Error('Quota Google Maps dépassé. Réessayez dans quelques secondes.'));
         } else {
-        reject(new Error('Erreur:', status))
+          reject(new Error('Erreur Google Maps: ' + status));
         }
     });
   })

@@ -80,16 +80,15 @@ function showMap(userLatLng, destinationCoords) {
     calculateRoute(userLatLng, destination);
 }
 
-function calculateRoute(origin, destination) {
-    directionsService.route({
-        origin,
-        destination,
-        travelMode: google.maps.TravelMode.DRIVING
-    }, (response, status) => {
-        if (status !== "OK" || !response.routes.length) {
-            console.error("Erreur route:", status);
-            return;
-        }
+async function calculateRoute(origin, destination) {
+    try {
+        const response = await directionsService.route({
+            origin,
+            destination,
+            travelMode: google.maps.TravelMode.DRIVING
+        });
+
+        if (!response.routes.length) return;
 
         directionsRenderer.setDirections(response);
 
@@ -103,7 +102,13 @@ function calculateRoute(origin, destination) {
         initializePolylines();
         updatePolylines(origin);
         startRealtimeTracking();
-    });
+    } catch (error) {
+        if (error.message && error.message.includes('OVER_QUERY_LIMIT')) {
+            showRouteError("Le quota de l'API Google Maps est dépassé. Veuillez réessayer plus tard ou utiliser le lien Google Maps externe.");
+        } else {
+            showRouteError("Impossible de calculer l'itinéraire. Veuillez utiliser le lien Google Maps externe.");
+        }
+    }
 }
 
 function initializePolylines() {
@@ -112,6 +117,15 @@ function initializePolylines() {
 
     walkedPolyline = new google.maps.Polyline({map, strokeColor: "#888888", strokeWeight: 6, zIndex: 2, path: []});
     remainingPolyline = new google.maps.Polyline({map, strokeColor: "#1a73e8", strokeWeight: 6, zIndex: 3, path: fullPath});
+}
+
+function showRouteError(message) {
+    panelDiv.innerHTML = `
+        <div style="padding: 15px; background: #ffebee; border-radius: 8px; color: #c62828;">
+            <strong>Erreur de navigation</strong><br/>
+            ${message}
+        </div>
+    `;
 }
 
 function updatePolylines(userPos) {
