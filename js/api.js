@@ -76,12 +76,13 @@ async function detectCity(lat, lng) {
         return { city: 'metz' };
     }
     
-    // Londres - inclut tous les boroughs
-    if (address.country === 'United Kingdom' && (
-        ville === 'London' ||
-        ['Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 'Hammersmith', 'Kensington', 'Chelsea', 'Bromley', 'Croydon', 'Sutton', 'Merton', 'Kingston', 'Richmond', 'Hounslow', 'Hillingdon', 'Harrow', 'Brent', 'Ealing', 'Barnet', 'Hertsmere', 'Enfield'].some(borough => 
-            ville.includes(borough)
-        )
+    // Londres - inclut tous les boroughs (supporte FR et EN)
+    const isUK = address.country_code === 'gb' || address.country === 'United Kingdom' || address.country === 'Royaume-Uni';
+    const londonBoroughs = ['Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 'Hammersmith', 'Kensington', 'Chelsea', 'Bromley', 'Croydon', 'Sutton', 'Merton', 'Kingston', 'Richmond', 'Hounslow', 'Hillingdon', 'Harrow', 'Brent', 'Ealing', 'Barnet', 'Hertsmere', 'Enfield'];
+    
+    if (isUK && (
+        ville === 'London' || ville === 'Londres' ||
+        londonBoroughs.some(borough => ville.includes(borough))
     )) {
         return { city: 'london' };
     }
