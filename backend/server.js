@@ -36,7 +36,7 @@ function authMiddleware(req, res, next) {
     }
 }
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.json({ message: 'API Autopark opérationnelle' });
 });
 
