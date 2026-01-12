@@ -79,9 +79,10 @@ async function detectCity(lat, lng) {
     // Londres - inclut tous les boroughs (supporte FR et EN)
     const isUK = address.country_code === 'gb' || address.country === 'United Kingdom' || address.country === 'Royaume-Uni';
     const londonBoroughs = ['Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 'Hammersmith', 'Kensington', 'Chelsea', 'Bromley', 'Croydon', 'Sutton', 'Merton', 'Kingston', 'Richmond', 'Hounslow', 'Hillingdon', 'Harrow', 'Brent', 'Ealing', 'Barnet', 'Hertsmere', 'Enfield'];
+    const isGreaterLondon = ville === 'Greater London' || ville === 'Grand Londres';
     
     if (isUK && (
-        ville === 'London' || ville === 'Londres' ||
+        ville === 'London' || ville === 'Londres' || isGreaterLondon ||
         londonBoroughs.some(borough => ville.includes(borough))
     )) {
         return { city: 'london' };
