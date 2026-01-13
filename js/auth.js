@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://autopark.live/api';
 
 // Gestion du token
 function getToken() {
@@ -35,7 +35,8 @@ async function register(nom, prenom, email, mot_de_passe) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    // On utilise t() pour traduire le message si c'est une clé, ou afficher le texte tel quel
+    if (!res.ok) throw new Error(t(data.message));
 
     setToken(data.token);
     return data;
@@ -50,7 +51,7 @@ async function login(email, mot_de_passe) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) throw new Error(t(data.message));
 
     setToken(data.token);
     return data;
@@ -69,7 +70,8 @@ async function getProfil() {
         headers: getAuthHeaders()
     });
 
-    if (!res.ok) throw new Error('Erreur récupération profil');
+    // Utilisation d'une clé de traduction pour l'erreur
+    if (!res.ok) throw new Error(t('error.profile_fetch'));
     return res.json();
 }
 
@@ -82,7 +84,7 @@ async function updateProfil(profilData) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) throw new Error(t(data.message));
     return data;
 }
 
@@ -94,7 +96,8 @@ async function getCompte() {
 
     if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || `Erreur ${res.status}`);
+        // Traduction du message API ou message générique
+        throw new Error(t(data.message) || `${t('error.api_error')} ${res.status}`);
     }
     return res.json();
 }
@@ -108,7 +111,7 @@ async function updateCompte(nom, prenom) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) throw new Error(t(data.message));
     return data;
 }
 
@@ -121,7 +124,7 @@ async function changePassword(ancienPassword, nouveauPassword) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) throw new Error(t(data.message));
     return data;
 }
 
@@ -134,7 +137,8 @@ async function getHistorique() {
 
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
-            throw new Error(`Erreur récupération historique: ${res.status} - ${errorData.message || 'Erreur inconnue'}`);
+            // Construction d'un message d'erreur complet et traduit
+            throw new Error(`${t('error.history_fetch')}: ${res.status} - ${t(errorData.message) || t('error.unknown')}`);
         }
         
         const data = await res.json();
@@ -155,6 +159,6 @@ async function saveTrajet(trajetData) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) throw new Error(t(data.message));
     return data;
 }

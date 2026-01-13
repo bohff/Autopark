@@ -1,89 +1,140 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Autopark - Inscription</title>
-    <link rel="stylesheet" href="./css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="./css/global.css" />
+    <link rel="stylesheet" href="./css/forms.css" />
     
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div id="formContainer">
-        <h1>Inscription</h1>
-        
-        <form id="registerForm">
-            <div>
-                <label for="nom">Nom</label>
-                <input type="text" id="nom" placeholder="Votre nom" required>
-            </div>
-            
-            <div>
-                <label for="prenom">Prénom</label>
-                <input type="text" id="prenom" placeholder="Votre prénom" required>
-            </div>
-            
-            <div>
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="votre@email.com" required>
-            </div>
-            
-            <div>
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" placeholder="Choisissez un mot de passe" required minlength="6">
-            </div>
-            
-            <div>
-                <label for="confirmPassword">Confirmer le mot de passe</label>
-                <input type="password" id="confirmPassword" placeholder="Confirmez votre mot de passe" required>
-            </div>
-            
-            <button type="submit" id="registerBtn">S'inscrire</button>
-        </form>
-        
-        <div id="message"></div>
-        
-        <p style="text-align: center; margin-top: 20px;">
-            Déjà un compte ? <a href="connexion.html">Se connecter</a>
-        </p>
-        <p style="text-align: center;">
-            <a href="index.html">Retour à l'accueil</a>
-        </p>
+      <h1 data-i18n="auth.registerTitle">Inscription</h1>
+
+      <form id="registerForm">
+        <div>
+          <label for="nom" data-i18n="auth.nom">Nom</label>
+          <input
+            type="text"
+            id="nom"
+            data-i18n="auth.placeholderName"
+            placeholder="Votre nom"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="prenom" data-i18n="auth.prenom">Prénom</label>
+          <input
+            type="text"
+            id="prenom"
+            data-i18n="auth.placeholderFirstName"
+            placeholder="Votre prénom"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="email" data-i18n="auth.email">Email</label>
+          <input
+            type="email"
+            id="email"
+            data-i18n="auth.placeholderEmail"
+            placeholder="votre@email.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="password" data-i18n="auth.password">Mot de passe</label>
+          <input
+            type="password"
+            id="password"
+            data-i18n="auth.placeholderPass"
+            placeholder="Choisissez un mot de passe"
+            required
+            minlength="6"
+          />
+        </div>
+
+        <div>
+          <label for="confirmPassword" data-i18n="auth.confirmPassword"
+            >Confirmer le mot de passe</label
+          >
+          <input
+            type="password"
+            id="confirmPassword"
+            data-i18n="auth.placeholderConfirm"
+            placeholder="Confirmez votre mot de passe"
+            required
+          />
+        </div>
+
+        <button type="submit" id="registerBtn" data-i18n="auth.submitRegister">
+          S'inscrire
+        </button>
+      </form>
+
+      <div id="message"></div>
+
+      <p style="text-align: center; margin-top: 20px">
+        <span data-i18n="auth.hasAccount">Déjà un compte ?</span>
+        <a href="connexion.html" data-i18n="auth.loginTitle" style="color:#2e7d32; font-weight:bold;">Se connecter</a>
+      </p>
+      
+      <p style="text-align: center">
+        <a href="index.html" class="btn-back-home">
+            <i class="fas fa-home"></i>
+            <span data-i18n="auth.backHome">Retour à l'accueil</span>
+        </a>
+      </p>
     </div>
-    
+
+    <script src="./js/lang.js"></script>
     <script src="./js/auth.js"></script>
     <script src="./js/header.js"></script>
+    <script src="./js/footer.js"></script>
     <script>
-        // Rediriger si déjà connecté
-        if (isLoggedIn()) {
-            window.location.href = 'index.html';
-        }
-        
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const nom = document.getElementById('nom').value;
-            const prenom = document.getElementById('prenom').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const messageDiv = document.getElementById('message');
-            
-            if (password !== confirmPassword) {
-                messageDiv.innerHTML = '<p class="error">Les mots de passe ne correspondent pas.</p>';
-                return;
-            }
-            
-            try {
-                messageDiv.innerHTML = '<p>Inscription en cours...</p>';
-                await register(nom, prenom, email, password);
-                messageDiv.innerHTML = '<p style="color: green;">Inscription réussie !</p>';
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1000);
-            } catch (error) {
-                messageDiv.innerHTML = `<p class="error">${error.message}</p>`;
-            }
+      if (isLoggedIn()) {
+        window.location.href = "index.html";
+      }
+
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          
+          const nom = document.getElementById("nom").value;
+          const prenom = document.getElementById("prenom").value;
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+          const messageDiv = document.getElementById("message");
+
+          if (password !== confirmPassword) {
+            messageDiv.innerHTML =
+              '<p class="error">Les mots de passe ne correspondent pas.</p>';
+            return;
+          }
+
+          try {
+            messageDiv.innerHTML = "<p>Inscription en cours...</p>";
+            await register(nom, prenom, email, password);
+            messageDiv.innerHTML =
+              '<p style="color: green;">Inscription réussie !</p>';
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 1000);
+          } catch (error) {
+            messageDiv.innerHTML = `<p class="error">${error.message}</p>`;
+          }
         });
     </script>
-</body>
+  </body>
 </html>

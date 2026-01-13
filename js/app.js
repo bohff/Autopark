@@ -29,7 +29,6 @@ async function loadUserProfil() {
             // Appliquer le dark mode si activé
             if (userProfil.darkmode) {
                 document.body.classList.add('darkmode');
-
             }
         } catch (error) {
             console.error('Erreur chargement profil:', error);
@@ -46,9 +45,10 @@ function showParkingResult({response, closeParkings}, userCoords) {
     // Cacher le formulaire
     formContainer.style.display = 'none';
 
-    let content = `<h3>Position actuelle : ${response.originAddresses[0]}</h3>`;
+    // 1. Titres avec attributs data-i18n pour la mise à jour dynamique
+    let content = `<h3><span data-i18n="result.current_pos">${t('result.current_pos')}</span> ${response.originAddresses[0]}</h3>`;
     
-    content += `<p><strong>Voici les 5 parkings les plus proches :</strong></p>`;
+    content += `<p><strong data-i18n="result.closest_parkings">${t('result.closest_parkings')}</strong></p>`;
 
     for (const parking of closeParkings) {
         const destAddress = response.destinationAddresses[parking.indice];
@@ -58,15 +58,22 @@ function showParkingResult({response, closeParkings}, userCoords) {
         const pricing = parking.parkingDetails.parking.properties.cout;
         const type = parking.parkingDetails.parking.properties.typ;
 
+        // 2. Chaque libellé reçoit son data-i18n
+        // Note: capitalizeFirstLetter doit être défini dans utils.js
         content += `
         <div class="parkingItem" style="border:1px solid #ccc; padding:10px; border-radius:8px; margin-bottom:10px;">
             <h4>${destAddress}</h4>
-            <p><strong>Distance :</strong> ${distance} mètres</p>
-            <p><strong>Durée estimée :</strong> ${duration}</p>
-            <p><strong>Tarification :</strong> ${ pricing ? capitalizeFirstLetter(pricing) : "Gratuit"}</p>
-            <p><strong>Type :</strong> ${ type ? capitalizeFirstLetter(type) : "Extérieur"}</p>
-            ${mode !== "address" ? `<button class="showMapBtn" data-index="${closeParkings.indexOf(parking)}" data-distance="${distance}" data-duration="${duration}" data-dest="${destAddress}">Y aller</button>` : ""}
-            <a href="${mapsURL}" target="_blank"><button>Itinéraire Google Maps</button></a>
+            <p><strong data-i18n="result.distance">${t('result.distance')}</strong> ${distance} m</p>
+            <p><strong data-i18n="result.duration">${t('result.duration')}</strong> ${duration}</p>
+            <p><strong data-i18n="result.pricing">${t('result.pricing')}</strong> ${ pricing ? capitalizeFirstLetter(pricing) : "Gratuit"}</p>
+            <p><strong data-i18n="result.type">${t('result.type')}</strong> ${ type ? capitalizeFirstLetter(type) : "Extérieur"}</p>
+            
+            ${mode !== "address" ? 
+                // Bouton "Y aller" avec data-i18n
+                `<button class="showMapBtn" data-i18n="btn.go" data-index="${closeParkings.indexOf(parking)}" data-distance="${distance}" data-duration="${duration}" data-dest="${destAddress}">${t('btn.go')}</button>` 
+                : ""}
+            
+            <a href="${mapsURL}" target="_blank"><button data-i18n="btn.gmaps">${t('btn.gmaps')}</button></a>
         </div>
         `;
     }
@@ -108,17 +115,20 @@ function showParkingResult({response, closeParkings}, userCoords) {
 
 async function onLocate() {
     mode = "gps";
-    result.textContent = 'Localisation (tentatives en cours)...';
+    // Texte traduit via t()
+    result.textContent = t('status.locating');
     try {
         const userLocation = await getUserAccurateLocation();
         if (userLocation === null) {
-            result.innerHTML ='<p>Erreur : Impossible d\'obtenir votre localisation. Vérifiez vos permissions ou réessayez.</p>';
+            result.innerHTML = `<p class="error">${t('error.geolocation')}</p>`;
             return;
         }
         const parkingResult = await getCloseParkings(userLocation, userProfil);
         showParkingResult(parkingResult, userLocation);
     } catch(error) {
-        result.innerHTML = '<p class="error">' + error.message + '</p>';
+        // Traduction de l'erreur si c'est une clé connue
+        const msg = error.message.startsWith('error.') ? t(error.message) : error.message;
+        result.innerHTML = `<p class="error">${msg}</p>`;
     }
 }
 
@@ -126,15 +136,16 @@ async function onAddress() {
     mode = "address";
     const address = addressInput.value.trim();
     if (!address) {
-        result.innerHTML = '<p class="error">Adresse manquante.</p>';
+        result.innerHTML = `<p class="error">${t('error.address_missing')}</p>`;
         return;
     }
-    result.textContent = 'En cours de géocodage...'
+    result.textContent = t('status.geocoding');
     try {
         const userLocation = await geocodeAddress(address);
         const parkingResult = await getCloseParkings(userLocation, userProfil);
         showParkingResult(parkingResult, userLocation);
     } catch (error) {
-        result.innerHTML = '<p class="error">' + error.message + '</p>';
+        const msg = error.message.startsWith('error.') ? t(error.message) : error.message;
+        result.innerHTML = `<p class="error">${msg}</p>`;
     }
 }

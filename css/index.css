@@ -1,0 +1,21 @@
+/* --- INDEX : Map & Résultats --- */
+
+#map { 
+    height: 400px; width: 100%; 
+    border-radius: 0.5rem; margin-top: 1.5rem; 
+}
+
+.parkingItem {
+    background-color: #ffffff;
+    border-left: 6px solid #66bb6a;
+    padding: 15px 18px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.parkingItem h4 { margin: 0 0 6px 0; color: #2e7d32; font-size: 1.1rem; }
+.parkingItem p { margin: 4px 0; font-size: 0.95rem; }
+
+/* Dark Mode Index */
+body.darkmode .parkingItem { background-color: #2d2d2d; border-left-color: #81c784; }
+body.darkmode .parkingItem h4 { color: #a5d6a7; }

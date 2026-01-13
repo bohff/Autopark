@@ -1,66 +1,100 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Autopark - Connexion</title>
-    <link rel="stylesheet" href="./css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="./css/global.css" />
+    <link rel="stylesheet" href="./css/forms.css" />
     
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div id="formContainer">
-        <h1>Connexion</h1>
-        
-        <form id="loginForm">
-            <div>
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="votre@email.com" required>
-            </div>
-            
-            <div>
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" placeholder="Votre mot de passe" required>
-            </div>
-            
-            <button type="submit" id="loginBtn">Se connecter</button>
-        </form>
-        
-        <div id="message"></div>
-        
-        <p style="text-align: center; margin-top: 20px;">
-            Pas encore de compte ? <a href="inscription.html">S'inscrire</a>
-        </p>
-        <p style="text-align: center;">
-            <a href="index.html">Retour à l'accueil</a>
-        </p>
+      <h1 data-i18n="auth.loginTitle">Connexion</h1>
+
+      <form id="loginForm">
+        <div>
+          <label for="email" data-i18n="auth.email">Email</label>
+          <input
+            type="email"
+            id="email"
+            data-i18n="auth.placeholderEmail"
+            placeholder="votre@email.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="password" data-i18n="auth.password">Mot de passe</label>
+          <input
+            type="password"
+            id="password"
+            data-i18n="auth.placeholderPassLogin"
+            placeholder="Votre mot de passe"
+            required
+          />
+        </div>
+
+        <button type="submit" id="loginBtn" data-i18n="auth.submitLogin">
+          Se connecter
+        </button>
+      </form>
+
+      <div id="message"></div>
+
+      <p style="text-align: center; margin-top: 20px">
+        <span data-i18n="auth.noAccount">Pas encore de compte ?</span>
+        <a href="inscription.html" data-i18n="auth.registerTitle" style="color:#2e7d32; font-weight:bold;">S'inscrire</a>
+      </p>
+      
+      <p style="text-align: center">
+        <a href="index.html" class="btn-back-home">
+            <i class="fas fa-home"></i>
+            <span data-i18n="auth.backHome">Retour à l'accueil</span>
+        </a>
+      </p>
     </div>
-    
+
+    <script src="./js/lang.js"></script>
     <script src="./js/auth.js"></script>
     <script src="./js/header.js"></script>
+    <script src="./js/footer.js"></script>
+    
     <script>
-        // Rediriger si déjà connecté
-        if (isLoggedIn()) {
-            window.location.href = 'index.html';
-        }
-        
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('message');
-            
-            try {
-                messageDiv.innerHTML = '<p>Connexion en cours...</p>';
-                await login(email, password);
-                messageDiv.innerHTML = '<p style="color: green;">Connexion réussie !</p>';
+      if (isLoggedIn()) {
+        window.location.href = "index.html";
+      }
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const messageDiv = document.getElementById("message");
+
+          try {
+            messageDiv.innerHTML = `<p>${t('auth.loggingIn')}</p>`;
+            await login(email, password);
+
+            if (isLoggedIn()) {
+                messageDiv.innerHTML = `<p style="color: green;">${t('auth.loginSuccess')}</p>`;
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = "index.html";
                 }, 1000);
-            } catch (error) {
-                messageDiv.innerHTML = `<p class="error">${error.message}</p>`;
+            } else {
+                throw new Error("Erreur technique: Session non sauvegardée.");
             }
+
+          } catch (error) {
+            messageDiv.innerHTML = `<p class="error">${error.message}</p>`;
+          }
         });
     </script>
-</body>
+  </body>
 </html>

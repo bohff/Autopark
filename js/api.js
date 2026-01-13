@@ -1,7 +1,7 @@
 async function getUserAccurateLocation() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-            return reject(new Error("Géolocalisation non supportée par votre navigateur"));
+            return reject(new Error("error.geolocation"));
         }
 
         navigator.geolocation.getCurrentPosition(
@@ -9,24 +9,13 @@ async function getUserAccurateLocation() {
                 resolve({
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
-                    accuracy: position.coords.accuracy
+                    accuracy: position.coords.accuracy,
+                    isDefault: false
                 });
             },
             (error) => {
-                // Messages d'erreur plus clairs
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        reject(new Error("Vous avez refusé l'accès à la localisation. Autorisez-la dans les paramètres de votre navigateur."));
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        reject(new Error("Position indisponible. Vérifiez que le GPS est activé."));
-                        break;
-                    case error.TIMEOUT:
-                        reject(new Error("Délai dépassé. Réessayez ou utilisez une adresse."));
-                        break;
-                    default:
-                        reject(new Error("Erreur de localisation inconnue."));
-                }
+                console.warn(`Erreur géolocalisation (${error.code}): ${error.message}`);
+                reject(new Error("error.geolocation"));
             },
             {
                 enableHighAccuracy: true,
@@ -38,17 +27,16 @@ async function getUserAccurateLocation() {
 }
 
 async function geocodeAddress(address) {
-    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address);
+    // Ajout de 'addressdetails=1' pour avoir plus d'infos sur la ville
+    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=' + encodeURIComponent(address);
 
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+    if (!res.ok) throw new Error('error.api_error');
 
     const jsonRes = await res.json();
-    if (jsonRes.length === 0) throw new Error("Adresse introuvable")
+    if (jsonRes.length === 0) throw new Error('error.address_not_found');
 
-    // jsonRes[0].lat This call returns a string
-
-    const LatLng = {lat: parseFloat(jsonRes[0].lat), lng: parseFloat(jsonRes[0].lon)}
+    const LatLng = {lat: parseFloat(jsonRes[0].lat), lng: parseFloat(jsonRes[0].lon)};
     return LatLng;
 }
 
@@ -56,40 +44,68 @@ async function reverseGeocode(lat, lng) {
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
     
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+    if (!res.ok) throw new Error('error.api_error');
     
     const jsonRes = await res.json();
     return jsonRes;
 }
 
+// --- FONCTION CORRIGÉE POUR BIG BEN & AUTRES ---
 async function detectCity(lat, lng) {
     const geoData = await reverseGeocode(lat, lng);
     const address = geoData.address;
     
-    // Récupérer le nom de la ville
-    const ville = address.city || address.town || address.municipality || '';
-    const county = address.county || '';
-    const state = address.state || '';
-    
-    // Metz
-    if (ville === 'Metz') {
+    // Debug : permet de voir ce que l'API renvoie vraiment (F12 > Console)
+    console.log("📍 Données géographiques reçues :", address);
+
+    // 1. On rassemble TOUS les champs susceptibles de contenir le nom de la ville ou du quartier
+    // Nominatim est capricieux : parfois c'est 'city', parfois 'suburb' (pour Big Ben), parfois 'county'
+    const locationFields = [
+        address.city,
+        address.town,
+        address.municipality,
+        address.suburb,          // Crucial pour Westminster / Big Ben
+        address.neighbourhood,
+        address.borough,         // Spécifique aux arrondissements
+        address.city_district,
+        address.state_district,  // Souvent "Greater London"
+        address.county
+    ].filter(val => val).map(val => val.toLowerCase()); // On nettoie et on met en minuscules
+
+    // Fonction utilitaire : vérifie si un de nos champs contient un mot clé
+    const checkLocation = (keywords) => locationFields.some(field => 
+        keywords.some(key => field.includes(key.toLowerCase()))
+    );
+
+    // --- TEST METZ ---
+    if (checkLocation(['Metz'])) {
         return { city: 'metz' };
     }
     
-    // Londres - inclut tous les boroughs (supporte FR et EN)
+    // --- TEST LONDRES ---
     const isUK = address.country_code === 'gb' || address.country === 'United Kingdom' || address.country === 'Royaume-Uni';
-    const londonBoroughs = ['Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 'Hammersmith', 'Kensington', 'Chelsea', 'Bromley', 'Croydon', 'Sutton', 'Merton', 'Kingston', 'Richmond', 'Hounslow', 'Hillingdon', 'Harrow', 'Brent', 'Ealing', 'Barnet', 'Hertsmere', 'Enfield'];
-    const isGreaterLondon = ville === 'Greater London' || ville === 'Grand Londres';
     
-    if (isUK && (
-        ville === 'London' || ville === 'Londres' || isGreaterLondon ||
-        londonBoroughs.some(borough => ville.includes(borough))
-    )) {
-        return { city: 'london' };
+    if (isUK) {
+        // Liste élargie pour Londres et ses quartiers
+        const londonKeywords = [
+            'london', 'londres', 'greater london', 'grand londres',
+            'westminster', 'camden', 'islington', 'hackney', 'tower hamlets', 
+            'greenwich', 'lewisham', 'southwark', 'lambeth', 'wandsworth', 
+            'hammersmith', 'kensington', 'chelsea', 'bromley', 'croydon', 
+            'sutton', 'merton', 'kingston', 'richmond', 'hounslow', 
+            'hillingdon', 'harrow', 'brent', 'ealing', 'barnet', 
+            'hertsmere', 'enfield'
+        ];
+
+        // Si l'adresse contient "London" OU un des quartiers (ex: Westminster)
+        if (checkLocation(londonKeywords)) {
+            return { city: 'london' };
+        }
     }
     
-    // Ville non supportée - on garde le nom pour le message d'erreur
-    return { city: null, detectedName: ville || county || 'Inconnue' };
+    // Si on arrive ici, c'est que ce n'est ni Metz ni Londres
+    console.warn("⚠️ Lieu non supporté. Champs analysés :", locationFields);
+    throw new Error('error.city_not_supported');
 }
 
 function buildGoogleMapsURL(origin, destination) {
@@ -104,11 +120,9 @@ async function fetchParkingsMetz() {
   const url = 'https://maps.eurometropolemetz.eu/public/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:pub_tsp_sta&srsName=EPSG:4326&outputFormat=application%2Fjson';
   
   const res = await fetch(url);
-
-  if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+  if (!res.ok) throw new Error('error.api_error');
 
   const resJson = await res.json();
-
   return resJson.features;
 }
 
@@ -116,14 +130,12 @@ async function fetchParkingsLondon() {
   const url = 'https://api.tfl.gov.uk/Place/Type/CarPark?app_key=a4ede2ed3a0f4b2fa40a10a0e2de518b';
   
   const res = await fetch(url);
-
-  if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+  if (!res.ok) throw new Error('error.api_error');
 
   const resJson = await res.json();
 
   // Transformer les données TfL au format attendu
   return resJson.map(parking => {
-    // Extraire les infos des additionalProperties
     const props = parking.additionalProperties || [];
     
     function getProp(key) {
@@ -136,16 +148,13 @@ async function fetchParkingsLondon() {
     const hasLift = getProp('Lifts');
     const maxHeight = getProp('MaxHeightMetres');
     
-    // Déterminer le type : si hauteur max ou ascenseur, c'est probablement couvert
-    let type = 'aérien'; // Par défaut extérieur
+    let type = 'aérien';
     if (maxHeight || (hasLift && parseInt(hasLift) > 0)) {
       type = 'souterrain';
     }
     
     return {
-      geometry: {
-        coordinates: [parking.lon, parking.lat]
-      },
+      geometry: { coordinates: [parking.lon, parking.lat] },
       properties: {
         nom: parking.commonName,
         lib: parking.commonName,
@@ -160,14 +169,9 @@ async function fetchParkingsLondon() {
 }
 
 async function getCloseParkings(userCoords, userProfil = null) {
-// const userCoords = {lat: 49.119682, lng: 6.1589498, accuracy: 14.762};
   
-  // Détecter la ville
+  // Détecter la ville (peut lancer error.city_not_supported)
   const cityResult = await detectCity(userCoords.lat, userCoords.lng);
-  
-  if (cityResult.city === null) {
-    throw new Error(`Votre ville (${cityResult.detectedName}) n'est pas prise en charge par notre application. Actuellement, seules les villes de Metz et Londres sont disponibles.`);
-  }
   
   // Récupérer les parkings selon la ville
   let parkingList;
@@ -177,10 +181,9 @@ async function getCloseParkings(userCoords, userProfil = null) {
     parkingList = await fetchParkingsLondon();
   }
   
-  // Appliquer les filtres de préférences utilisateur
+  // Appliquer les filtres
   let filteredParkings = parkingList;
 
-  // Filtre par tarification
   if (userProfil && userProfil.tarification && userProfil.tarification !== 'tous') {
     filteredParkings = filteredParkings.filter(p => {
       const cout = (p.properties.cout || '').toLowerCase();
@@ -189,7 +192,6 @@ async function getCloseParkings(userCoords, userProfil = null) {
     });
   }
 
-  // Filtre par type de parking
   if (userProfil && userProfil.type_parking && userProfil.type_parking !== 'tous') {
     filteredParkings = filteredParkings.filter(p => {
       const typ = (p.properties.typ || '').toLowerCase();
@@ -198,32 +200,23 @@ async function getCloseParkings(userCoords, userProfil = null) {
     });
   }
 
-  // Utiliser les parkings filtrés (tous les filtres appliqués)
   parkingList = filteredParkings;
 
   const parkingsAndDistances = [];
 
   for (let i=0; i<= parkingList.length-1; i++) {
-    const parking = parkingList[i];
-    const parkingLng = parkingList[i].geometry.coordinates[0];
-    const parkingLat = parkingList[i].geometry.coordinates[1];
-
-    const distance = haversineDistanceKM(parkingLat, parkingLng, userCoords.lat, userCoords.lng);
-
-    parkingsAndDistances.push({parking: parking, distance: distance});
+    const p = parkingList[i];
+    const distance = haversineDistanceKM(p.geometry.coordinates[1], p.geometry.coordinates[0], userCoords.lat, userCoords.lng);
+    parkingsAndDistances.push({parking: p, distance: distance});
   }
 
   const sortedParkings = parkingsAndDistances.sort((a, b) => a.distance - b.distance).slice(0,25);
 
-  const destinationsArray = [];
-
-  for (let i=0; i<= sortedParkings.length-1; i++) {
-    const parking = sortedParkings[i];
-    const parkingLng = parking.parking.geometry.coordinates[0];
-    const parkingLat = parking.parking.geometry.coordinates[1];
-
-    destinationsArray.push({lat: parkingLat, lng: parkingLng, parkingDetails: parking});
-  }
+  const destinationsArray = sortedParkings.map(p => ({
+      lat: p.parking.geometry.coordinates[1], 
+      lng: p.parking.geometry.coordinates[0], 
+      parkingDetails: p
+  }));
 
   const formattedDestinations = formatDestinationForDistanceMatrixAPI(destinationsArray);
   const formattedUserCoords = `${userCoords.lat},${userCoords.lng}`;
@@ -231,9 +224,9 @@ async function getCloseParkings(userCoords, userProfil = null) {
   const getDistanceMatrixParkings = [];
 
   return new Promise((resolve, reject) => {
-    // Timeout de 15 secondes pour éviter le blocage infini
+    // Timeout avec clé d'erreur
     const timeout = setTimeout(() => {
-      reject(new Error('Délai dépassé. Le service Google Maps ne répond pas. Réessayez.'));
+      reject(new Error('error.timeout'));
     }, 15000);
     
     const service = new google.maps.DistanceMatrixService();
@@ -260,9 +253,9 @@ async function getCloseParkings(userCoords, userProfil = null) {
           const closeParkings = getDistanceMatrixParkings.slice(0,5);
           resolve({response, closeParkings});
         } else if (status === 'OVER_QUERY_LIMIT') {
-          reject(new Error('Quota Google Maps dépassé. Réessayez dans quelques secondes.'));
+          reject(new Error('error.google_quota'));
         } else {
-          reject(new Error('Erreur Google Maps: ' + status));
+          reject(new Error('error.google_generic'));
         }
     });
   })

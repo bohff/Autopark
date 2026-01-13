@@ -103,10 +103,12 @@ async function calculateRoute(origin, destination) {
         updatePolylines(origin);
         startRealtimeTracking();
     } catch (error) {
+        // --- MODIFICATION 1 : Gestion des erreurs avec traduction ---
         if (error.message && error.message.includes('OVER_QUERY_LIMIT')) {
-            showRouteError("Le quota de l'API Google Maps est dépassé. Veuillez réessayer plus tard ou utiliser le lien Google Maps externe.");
+            showRouteError(t('error.google_quota'));
         } else {
-            showRouteError("Impossible de calculer l'itinéraire. Veuillez utiliser le lien Google Maps externe.");
+            // Utilise la clé 'nav.error_calculation' définie dans lang.js
+            showRouteError(t('nav.error_calculation'));
         }
     }
 }
@@ -120,9 +122,10 @@ function initializePolylines() {
 }
 
 function showRouteError(message) {
+    // --- MODIFICATION 2 : Titre de l'erreur traduit ---
     panelDiv.innerHTML = `
         <div style="padding: 15px; background: #ffebee; border-radius: 8px; color: #c62828;">
-            <strong>Erreur de navigation</strong><br/>
+            <strong>${t('nav.error_title')}</strong><br/>
             ${message}
         </div>
     `;
@@ -146,10 +149,7 @@ function startRealtimeTracking() {
     if (watchId !== null) return;
     watchId = navigator.geolocation.watchPosition(
         pos => {
-            
             const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            // if (userPos.lat === 0 || userPos.lng === 0) return;
-
             userMarker.setPosition(userPos);
             updatePolylines(userPos);
             followRoute(userPos);
@@ -215,10 +215,11 @@ function onArrived() {
         remainingPolyline = null;
     }
     if (panelDiv) {
-    panelDiv.innerHTML = `
-            <strong>Vous êtes arrivé à destination.</strong><br/>
-            Merci d’avoir utilisé la navigation.
-    `;
+        // --- MODIFICATION 3 : Message d'arrivée traduit ---
+        panelDiv.innerHTML = `
+            <strong>${t('nav.arrived')}</strong><br/>
+            ${t('nav.thanks')}
+        `;
     }
 }
 

@@ -4,164 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autopark - Profil</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/global.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     
     <div id="formContainer">
-        <h1>Profil</h1>
+        <h1 data-i18n="profile.title">Mon Compte</h1>
         
         <form id="compteForm">
-            <h3>Mon compte</h3>
+            <h3 data-i18n="profile.myAccount">Informations</h3>
             
             <div>
-                <label for="email">Email</label>
+                <label for="email" data-i18n="auth.email">Email</label>
                 <input type="email" id="email" disabled style="background:#eee; cursor:not-allowed;">
             </div>
             
             <div>
-                <label for="prenom">Prénom</label>
+                <label for="prenom" data-i18n="auth.prenom">Prénom</label>
                 <input type="text" id="prenom" required minlength="2">
             </div>
             
             <div>
-                <label for="nom">Nom</label>
+                <label for="nom" data-i18n="auth.nom">Nom</label>
                 <input type="text" id="nom" required minlength="2">
             </div>
             
-            <button type="submit">Modifier</button>
+            <button type="submit" data-i18n="profile.update">Mettre à jour</button>
         </form>
         
         <div id="messageCompte"></div>
         
         <form id="passwordForm" style="margin-top: 30px;">
-            <h3>Changer le mot de passe</h3>
+            <h3 data-i18n="profile.changePass">Sécurité</h3>
             
             <div>
-                <label for="ancienPassword">Mot de passe actuel</label>
+                <label for="ancienPassword" data-i18n="auth.password">Mot de passe actuel</label>
                 <input type="password" id="ancienPassword" required>
             </div>
             
             <div>
-                <label for="nouveauPassword">Nouveau mot de passe</label>
+                <label for="nouveauPassword" data-i18n="auth.newPassword">Nouveau mot de passe</label>
                 <input type="password" id="nouveauPassword" required minlength="4">
             </div>
             
             <div>
-                <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+                <label for="confirmPassword" data-i18n="auth.confirmPassword">Confirmer</label>
                 <input type="password" id="confirmPassword" required minlength="4">
             </div>
             
-            <button type="submit">Changer le mot de passe</button>
+            <button type="submit" data-i18n="profile.btn_change">Changer le mot de passe</button>
         </form>
         
         <div id="messagePassword"></div>
-        
-        <form id="profilForm" style="margin-top: 30px;">
-            <h3>Préférences de parking</h3>
-            
-            <div>
-                <label for="tarification">Tarification</label>
-                <select id="tarification">
-                    <option value="tous">Tous</option>
-                    <option value="gratuit">Gratuit uniquement</option>
-                    <option value="payant">Payant uniquement</option>
-                </select>
-            </div>
-            
-            <div>
-                <label for="type_parking">Type de parking</label>
-                <select id="type_parking">
-                    <option value="tous">Tous</option>
-                    <option value="souterrain">Souterrain (couvert)</option>
-                    <option value="aérien">Aérien (extérieur)</option>
-                </select>
-            </div>
-            
-            <h3>Interface</h3>
-            
-            <div class="checkboxGroup">
-                <label>
-                    <input type="checkbox" id="darkmode">
-                    Mode sombre
-                </label>
-            </div>
-            
-            <button type="submit" id="saveBtn">Enregistrer les préférences</button>
-        </form>
-        
-        <div id="message"></div>
-        
-        <p style="text-align: center; margin-top: 20px;">
-            <a href="index.html">Retour à l'accueil</a>
-        </p>
     </div>
     
+    <script src="./js/lang.js"></script>
     <script src="./js/auth.js"></script>
     <script src="./js/header.js"></script>
+    <script src="./js/footer.js"></script>
     <script>
-        // Rediriger si non connecté
-        if (!isLoggedIn()) {
-            window.location.href = 'connexion.html';
-        }
+        if (!isLoggedIn()) { window.location.href = 'connexion.html'; }
         
-        const messageDiv = document.getElementById('message');
         const messageCompteDiv = document.getElementById('messageCompte');
         const messagePasswordDiv = document.getElementById('messagePassword');
         
-        // Charger les infos du compte depuis MongoDB
         async function loadCompte() {
-            const compte = await getCompte();
-            document.getElementById('email').value = compte.email;
-            document.getElementById('nom').value = compte.nom;
-            document.getElementById('prenom').value = compte.prenom;
-        }
-        
-        // Charger les préférences depuis MongoDB
-        async function loadProfil() {
-            const profil = await getProfil();
-            document.getElementById('tarification').value = profil.tarification;
-            document.getElementById('type_parking').value = profil.type_parking;
-            document.getElementById('darkmode').checked = profil.darkmode;
-            
-            // Appliquer le dark mode
-            if (profil.darkmode) {
-                document.body.classList.add('darkmode');
+            try {
+                const compte = await getCompte();
+                document.getElementById('email').value = compte.email;
+                document.getElementById('nom').value = compte.nom;
+                document.getElementById('prenom').value = compte.prenom;
+            } catch (error) {
+                console.error(error);
             }
         }
         
-        // Modifier le nom/prénom
         document.getElementById('compteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const nom = document.getElementById('nom').value.trim();
             const prenom = document.getElementById('prenom').value.trim();
-            
             try {
                 await updateCompte(nom, prenom);
                 messageCompteDiv.innerHTML = '<p style="color: green;">Modifié !</p>';
-                
-                // Mettre à jour le header
                 const headerName = document.getElementById('userNameHeader');
-                if (headerName) headerName.textContent = `${prenom} ${nom}`;
+                if (headerName) headerName.textContent = `${prenom}`;
             } catch (error) {
                 messageCompteDiv.innerHTML = `<p class="error">${error.message}</p>`;
             }
         });
         
-        // Changer le mot de passe
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const ancien = document.getElementById('ancienPassword').value;
             const nouveau = document.getElementById('nouveauPassword').value;
             const confirm = document.getElementById('confirmPassword').value;
             
             if (nouveau !== confirm) {
-                messagePasswordDiv.innerHTML = '<p class="error">Les mots de passe ne correspondent pas.</p>';
+                messagePasswordDiv.innerHTML = '<p class="error">Mots de passe différents.</p>';
                 return;
             }
-            
             try {
                 await changePassword(ancien, nouveau);
                 messagePasswordDiv.innerHTML = '<p style="color: green;">Mot de passe modifié !</p>';
@@ -171,35 +114,7 @@
             }
         });
         
-        // Enregistrer les préférences
-        document.getElementById('profilForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const profilData = {
-                tarification: document.getElementById('tarification').value,
-                type_parking: document.getElementById('type_parking').value,
-                darkmode: document.getElementById('darkmode').checked
-            };
-            
-            try {
-                await updateProfil(profilData);
-                
-                // Appliquer le dark mode
-                if (profilData.darkmode) {
-                    document.body.classList.add('darkmode');
-                } else {
-                    document.body.classList.remove('darkmode');
-                }
-                
-                messageDiv.innerHTML = '<p style="color: green;">Préférences enregistrées !</p>';
-            } catch (error) {
-                messageDiv.innerHTML = `<p class="error">${error.message}</p>`;
-            }
-        });
-        
-        // Charger les données au démarrage
         loadCompte();
-        loadProfil();
     </script>
 </body>
 </html>

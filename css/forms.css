@@ -1,0 +1,86 @@
+/* --- FORMS : Container, Inputs, Boutons --- */
+
+/* Container */
+#formContainer {
+    background: #ffffff; padding: 20px; border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-bottom: 20px;
+}
+#formContainer div { display: flex; flex-direction: column; gap: 8px; }
+#formContainer h3 {
+    color: #1b5e20; margin-top: 20px; margin-bottom: 10px;
+    padding-bottom: 5px; border-bottom: 2px solid #a5d6a7;
+}
+
+/* Titres */
+#appTitle { text-align: center; font-size: 2.2rem; font-weight: bold; color: #1b5e20; margin-bottom: 10px; }
+h1 { margin-top: 0; color: #2e7d32; text-align: center; font-size: 1.4rem; }
+
+/* Inputs & Selects */
+label { font-weight: 600; }
+input, select {
+    border: 1px solid #a5d6a7; border-radius: 12px; padding: 12px; 
+    width: 100%; font-size: 16px; margin-top: 6px; margin-bottom: 12px;
+    box-sizing: border-box; 
+}
+input { text-align: center; }
+select { background: white; }
+
+/* Boutons Généraux */
+button {
+    border: none; border-radius: 12px; padding: 12px; font-size: 16px;
+    font-weight: 600; cursor: pointer; width: 100%; margin-top: 6px;
+}
+
+/* Couleurs Spécifiques des Boutons */
+#gpsButton { background: #2e7d32; color: white; margin-bottom: 12px; }
+#addressButton { background: #66bb6a; color: white; }
+#saveBtn { background: #2e7d32; color: white; }
+.deleteBtn { background: #c62828; color: white; margin-top: 10px; }
+.showMapBtn { background: #43a047; color: white; }
+
+/* Checkbox */
+.checkboxGroup { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+.checkboxGroup input { width: auto; margin: 0; }
+
+/* Erreurs */
+.error { color: #b71c1c; font-weight: bold; margin-top: 10px; }
+
+/* Dark Mode Formulaires */
+body.darkmode #appTitle { color: #81c784; }
+body.darkmode #formContainer { background: #2d2d2d; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+body.darkmode input, body.darkmode select { background: #3d3d3d; border-color: #4a4a4a; color: #e0e0e0; }
+body.darkmode button { background: #388e3c; }
+
+
+.btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px 16px;      /* Un peu plus aéré que le header */
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    background: #2e7d32;    /* Vert Autopark */
+    border: 1px solid #2e7d32;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+.btn-back-home:hover {
+    background: #1b5e20;    /* Vert plus foncé au survol */
+    border-color: #1b5e20;
+    text-decoration: none;  /* Pas de soulignement */
+}
+
+/* En mode sombre */
+body.darkmode .btn-back-home {
+    background: #2e7d32;
+    color: white;
+}
+body.darkmode .btn-back-home:hover {
+    background: #66bb6a;
+    border-color: #66bb6a;
+}

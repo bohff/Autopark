@@ -1,49 +1,148 @@
-// Génère le header commun pour toutes les pages
 async function initHeader() {
     const header = document.createElement('header');
     header.id = 'mainHeader';
-    
-    let menuHTML = '';
-    
+
+    // Sélecteur de langue
+    const langSelectorHTML = `
+        <select id="langSelector" onchange="updateLanguage(this.value)" class="lang-select">
+            <option value="fr">🇫🇷 FR</option>
+            <option value="en">🇬🇧 EN</option>
+        </select>
+    `;
+
+    let headerHTML = '';
+
     if (isLoggedIn()) {
-        // Menu pour utilisateur connecté (pseudo chargé après)
-        menuHTML = `
+        // ============================
+        // --- UTILISATEUR CONNECTÉ ---
+        // ============================
+        
+        headerHTML = `
             <div class="header-left">
                 <a href="index.html" class="logo">Autopark</a>
             </div>
+            
             <nav class="header-nav">
-                <a href="profil.html">Profil</a>
-                <a href="historique.html">Historique</a>
+                <a href="index.html" data-i18n="nav.home">Accueil</a>
+                <a href="historique.html" data-i18n="nav.history">Historique</a>
+                <a href="profil.html" data-i18n="nav.profile">Profil</a>
+                <a href="preferences.html" data-i18n="nav.preferences">Préférences</a>
             </nav>
+
             <div class="header-right">
-                <span id="userNameHeader">...</span>
-                <a href="#" onclick="logout(); return false;" class="btn-logout">Déconnexion</a>
+                ${langSelectorHTML}
+                <span id="userNameHeader" style="font-weight:600; font-size:0.9rem; margin-right:5px;">Chargement...</span>
+                
+                <a href="#" id="headerLogoutBtn" class="btn-logout" title="Déconnexion"> 
+                    <i class="fas fa-sign-out-alt"></i> 
+                </a>
+            </div>
+        `;
+
+        // --- INJECTION DE LA FENÊTRE MODALE (Cachée par défaut) ---
+        // On l'ajoute à la fin du body pour être sûr qu'elle soit au-dessus de tout
+        const logoutModalHTML = `
+            <div id="logoutModal" class="modal-overlay" style="display:none;">
+                <div class="modal-box">
+                    <h3 data-i18n="modal.logout_title">Déconnexion</h3>
+                    <p data-i18n="modal.logout_message">Voulez-vous vraiment vous déconnecter ?</p>
+                    <div class="modal-buttons">
+                        <button id="btnCancelLogout" class="btn-modal-cancel" data-i18n="btn.cancel">Annuler</button>
+                        <button id="btnConfirmLogout" class="btn-modal-confirm" data-i18n="btn.confirm_logout">Se déconnecter</button>
+                    </div>
+                </div>
             </div>
         `;
         
-        header.innerHTML = menuHTML;
-        document.body.insertBefore(header, document.body.firstChild);
-        
-        // Charger le nom depuis MongoDB
-        const compte = await getCompte();
-        document.getElementById('userNameHeader').textContent = `${compte.prenom} ${compte.nom}`;
+        // On vérifie si la modal existe déjà pour éviter les doublons
+        if (!document.getElementById('logoutModal')) {
+            document.body.insertAdjacentHTML('beforeend', logoutModalHTML);
+        }
+
+        // --- CHARGEMENT DES DONNÉES (Nom + Darkmode) ---
+        setTimeout(async () => {
+            try {
+                if(typeof getCompte === 'function'){
+                    const compte = await getCompte();
+                    const userSpan = document.getElementById('userNameHeader');
+                    if(userSpan) userSpan.textContent = `${compte.prenom} ${compte.nom}`;
+                }
+            } catch (e) { console.error(e); }
+        }, 100);
+
+        if(typeof getProfil === 'function') {
+            getProfil().then(profil => {
+                if (profil.darkmode) document.body.classList.add('darkmode');
+                else document.body.classList.remove('darkmode');
+            }).catch(() => {});
+        }
+
     } else {
-        // Menu pour visiteur
-        menuHTML = `
+        // ===================================
+        // --- VISITEUR (NON CONNECTÉ) ---
+        // ===================================
+        headerHTML = `
             <div class="header-left">
                 <a href="index.html" class="logo">Autopark</a>
             </div>
             <nav class="header-nav"></nav>
             <div class="header-right">
-                <a href="connexion.html" class="btn-login">Connexion</a>
-                <a href="inscription.html" class="btn-register">Inscription</a>
+                ${langSelectorHTML}
+                <a href="connexion.html" class="btn-login" data-i18n="nav.login">Connexion</a>
             </div>
         `;
-        
-        header.innerHTML = menuHTML;
-        document.body.insertBefore(header, document.body.firstChild);
+    }
+
+    // Injection du Header dans le DOM
+    header.innerHTML = headerHTML;
+    
+    // Nettoyage de l'ancien header s'il existe
+    const existingHeader = document.getElementById('mainHeader');
+    if (existingHeader) existingHeader.remove();
+
+    document.body.insertBefore(header, document.body.firstChild);
+    
+    // ==========================================
+    // --- GESTION DES CLICS (MODAL LOGOUT) ---
+    // ==========================================
+    if (isLoggedIn()) {
+        const logoutBtn = document.getElementById('headerLogoutBtn');
+        const logoutModal = document.getElementById('logoutModal');
+        const btnCancel = document.getElementById('btnCancelLogout');
+        const btnConfirm = document.getElementById('btnConfirmLogout');
+
+        // 1. Clic sur le bouton rouge -> Ouvre la fenêtre
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                logoutModal.style.display = 'flex';
+            });
+        }
+
+        // 2. Clic sur Annuler -> Ferme la fenêtre
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => {
+                logoutModal.style.display = 'none';
+            });
+        }
+
+        // 3. Clic sur Confirmer -> Déconnecte vraiment
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', () => {
+                if (typeof logout === 'function') {
+                    logout(); 
+                } else {
+                    console.error("Fonction logout() introuvable");
+                }
+            });
+        }
+    }
+    
+    // Appliquer la langue
+    if(typeof updateLanguage === 'function') {
+        const savedLang = localStorage.getItem('autopark_lang') || 'fr';
+        updateLanguage(savedLang);
     }
 }
 
-// Initialiser le header au chargement
 document.addEventListener('DOMContentLoaded', initHeader);

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autopark - Préférences</title>
+    <link rel="stylesheet" href="./css/global.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    
+    <div id="formContainer">
+        <h1 data-i18n="profile.preferences">Préférences</h1>
+        
+        <form id="prefsForm">
+            <h3 data-i18n="profile.filters">Filtres</h3>
+            
+            <div>
+                <label for="tarification" data-i18n="profile.pricing">Tarification</label>
+                <select id="tarification">
+                    <option value="tous" data-i18n="filter.all">Tous</option>
+                    <option value="gratuit" data-i18n="filter.free">Gratuit uniquement</option>
+                    <option value="payant" data-i18n="filter.paid">Payant uniquement</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="type_parking" data-i18n="profile.parkingType">Type de parking</label>
+                <select id="type_parking">
+                    <option value="tous" data-i18n="filter.all">Tous</option>
+                    <option value="souterrain" data-i18n="filter.underground">Souterrain</option>
+                    <option value="aérien" data-i18n="filter.surface">Aérien</option>
+                </select>
+            </div>
+            
+            <h3 data-i18n="profile.display">Affichage</h3>
+            
+            <div class="checkboxGroup">
+                <label>
+                    <input type="checkbox" id="darkmode">
+                    <span data-i18n="profile.darkmode">Mode sombre</span>
+                </label>
+            </div>
+            
+            <button type="submit" id="saveBtn" data-i18n="profile.save">Enregistrer</button>
+        </form>
+        
+        <div id="message"></div>
+    </div>
+    
+    <script src="./js/lang.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/header.js"></script>
+    <script src="./js/footer.js"></script>
+    <script>
+        //Sécurité réactivée si besoin
+        if (!isLoggedIn()) { window.location.href = 'connexion.html'; }
+        
+        const messageDiv = document.getElementById('message');
+        
+        async function loadPrefs() {
+            try {
+                const profil = await getProfil();
+                document.getElementById('tarification').value = profil.tarification || 'tous';
+                document.getElementById('type_parking').value = profil.type_parking || 'tous';
+                document.getElementById('darkmode').checked = profil.darkmode || false;
+                
+                if (profil.darkmode) document.body.classList.add('darkmode');
+            } catch (error) {
+                console.error("Erreur chargement prefs:", error);
+            }
+        }
+        
+        // Appliquer le mode sombre en direct quand on coche la case
+        document.getElementById('darkmode').addEventListener('change', (e) => {
+            if(e.target.checked) document.body.classList.add('darkmode');
+            else document.body.classList.remove('darkmode');
+        });
+        
+        document.getElementById('prefsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const prefsData = {
+                tarification: document.getElementById('tarification').value,
+                type_parking: document.getElementById('type_parking').value,
+                darkmode: document.getElementById('darkmode').checked
+            };
+            try {
+                await updateProfil(prefsData);
+                // --- TRADUCTION DU SUCCÈS ICI ---
+                messageDiv.innerHTML = `<p style="color: green;">${t('profile.success')}</p>`;
+                setTimeout(() => messageDiv.innerHTML = '', 3000);
+            } catch (error) {
+                // --- TRADUCTION DE L'ERREUR ICI ---
+                messageDiv.innerHTML = `<p class="error">${t(error.message)}</p>`;
+            }
+        });
+        
+        loadPrefs();
+    </script>
+</body>
+</html>

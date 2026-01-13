@@ -4,35 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autopark - Guidage Parking Metz</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/global.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0x46slqtPOs21EXI_eSnhvC5LvXksJns&v=weekly"></script>
 </head>
 <body>
 
   <div id="formContainer">
-  <h1>Trouver la place de stationnement la plus proche</h1>
-  <p style="text-align:center; font-size:0.9rem; color:#666;">Disponible à Metz et Londres</p>
+    <h1 data-i18n="home.title">Trouver la place de stationnement la plus proche</h1>
+    <p style="text-align:center; font-size:0.9rem; color:#666;" data-i18n="home.subtitle">Disponible à Metz et Londres</p>
+    
     <div>
-      <button id="gpsButton">Me géolocaliser (GPS)</button>
+      <button id="gpsButton" data-i18n="home.gpsBtn">Me géolocaliser (GPS)</button>
     </div>
 
     <div>
-      <label for="addressInput"><strong>Ou adresse de départ :</strong></label>
-      <input id="addressInput" placeholder="Ex: 1 Rue de la République, Metz">
-      <button id="addressButton">Depuis l'adresse</button>
+      <label for="addressInput"><strong data-i18n="home.addressLabel">Ou adresse de départ :</strong></label>
+      <input id="addressInput" data-i18n="home.placeholder" placeholder="Ex: 1 Rue de la République, Metz">
+      <button id="addressButton" data-i18n="home.addressBtn">Depuis l'adresse</button>
     </div>
   </div>
 
-  <div id="result"><p>Choisissez une option.</p></div>
+  <div id="result"><p data-i18n="home.choose_option">Choisissez une option ci-dessus.</p></div>
   <div id="map"></div>
   <div id="directionPanel"></div>
-  
+
+  <script src="./js/lang.js"></script>
   <script src="./js/auth.js"></script>
   <script src="./js/header.js"></script>
+  <script src="./js/footer.js"></script>
   <script src="./js/utils.js"></script>
   <script src="./js/map.js"></script>
   <script src="./js/api.js"></script>
   <script src="./js/app.js"></script>
 </body>
-
 </html>
