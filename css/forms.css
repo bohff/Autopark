@@ -70,9 +70,9 @@ body.darkmode button { background: #388e3c; }
 }
 
 .btn-back-home:hover {
-    background: #1b5e20;    /* Vert plus foncé au survol */
+    background: #1b5e20;    
     border-color: #1b5e20;
-    text-decoration: none;  /* Pas de soulignement */
+    text-decoration: none;  
 }
 
 /* En mode sombre */

@@ -22,8 +22,11 @@
             <div id="trajetsContainer"></div>
         </div>
         
-        <p style="text-align: center; margin-top: 20px;">
-            <a href="index.html" data-i18n="auth.backHome">Retour à l'accueil</a>
+        <p style="text-align: center">
+            <a href="index.html" class="btn-back-home">
+                <i class="fas fa-home"></i>
+            <span data-i18n="auth.backHome">Retour à l'accueil</span>
+            </a>
         </p>
     </div>
     
@@ -32,7 +35,7 @@
     <script src="./js/header.js"></script>
     <script src="./js/footer.js"></script>
     <script>
-        // 1. Sécurité réactivée : Redirection si pas connecté
+        //1. Sécurité réactivée : Redirection si pas connecté
         if (!isLoggedIn()) {
             window.location.href = 'connexion.html';
         }

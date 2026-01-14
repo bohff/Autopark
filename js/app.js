@@ -4,6 +4,11 @@ const addressInput = document.getElementById('addressInput');
 const result = document.getElementById('result');
 const formContainer = document.getElementById('formContainer');
 
+const stopBtn = document.getElementById('stopBtn');
+const stopModal = document.getElementById('stopModal');
+const btnCancelStop = document.getElementById('btnCancelStop');
+const btnConfirmStop = document.getElementById('btnConfirmStop');
+
 let mode = null;
 let userProfil = null;
 let currentUser = null;
@@ -41,36 +46,97 @@ loadUserProfil();
 gpsButton.addEventListener('click', onLocate);
 addressButton.addEventListener('click', onAddress);
 
+if (stopBtn) {
+    stopBtn.addEventListener('click', () => {
+        // On affiche la fenêtre de confirmation
+        stopModal.style.display = 'flex';
+    });
+}
+
+// 2. Quand on clique sur Annuler
+if (btnCancelStop) {
+    btnCancelStop.addEventListener('click', () => {
+        // On cache juste la fenêtre, le guidage continue
+        stopModal.style.display = 'none';
+    });
+}
+
+// 3. Quand on clique sur Confirmer l'arrêt
+if (btnConfirmStop) {
+    btnConfirmStop.addEventListener('click', () => {
+        // On cache la fenêtre
+        stopModal.style.display = 'none';
+        
+        // C'EST ICI QU'ON RENVOIE VERS L'ACCUEIL / RECHARGE LA PAGE
+        window.location.href = "index.html"; 
+    });
+}
+
 function showParkingResult({response, closeParkings}, userCoords) {
     // Cacher le formulaire
     formContainer.style.display = 'none';
 
-    // 1. Titres avec attributs data-i18n pour la mise à jour dynamique
+    // 1. Titres
     let content = `<h3><span data-i18n="result.current_pos">${t('result.current_pos')}</span> ${response.originAddresses[0]}</h3>`;
-    
     content += `<p><strong data-i18n="result.closest_parkings">${t('result.closest_parkings')}</strong></p>`;
 
     for (const parking of closeParkings) {
+        // Données Google
         const destAddress = response.destinationAddresses[parking.indice];
         const distance = response.rows[0].elements[parking.indice].distance.value;
         const duration = response.rows[0].elements[parking.indice].duration.text;
         const mapsURL = buildGoogleMapsURL(userCoords, parking.coords);
-        const pricing = parking.parkingDetails.parking.properties.cout;
-        const type = parking.parkingDetails.parking.properties.typ;
+        
+        // Données Parking
+        const props = parking.parkingDetails.parking.properties;
+        const pricingRaw = props.cout; 
+        const typeRaw = props.typ;
 
-        // 2. Chaque libellé reçoit son data-i18n
-        // Note: capitalizeFirstLetter doit être défini dans utils.js
+        // --- 2. LOGIQUE NOM DU PARKING ---
+        const nomParking = props.LIB || props.lib || props.nom || props.commonName || destAddress;
+
+        // --- 3. LOGIQUE PRIX & TYPE (VERSION DYNAMIQUE) ---
+        // On crée des balises <span> avec data-i18n pour que la traduction marche en direct
+        
+        // PRIX
+        let pricingHTML;
+        if (pricingRaw === 'gratuit' || !pricingRaw) {
+            // C'est ici le secret : on met un SPAN avec data-i18n="parking.free"
+            pricingHTML = `<span data-i18n="parking.free">${t('parking.free')}</span>`;
+        } else if (pricingRaw === 'payant') {
+            pricingHTML = `<span data-i18n="parking.paid">${t('parking.paid')}</span>`;
+        } else {
+            // Si c'est un prix chiffré (ex: 2€), on l'affiche tel quel sans traduction
+            pricingHTML = pricingRaw;
+        }
+
+        // TYPE
+        let typeHTML;
+        if (typeRaw === 'souterrain') {
+            typeHTML = `<span data-i18n="parking.indoor">${t('parking.indoor')}</span>`;
+        } else {
+            typeHTML = `<span data-i18n="parking.outdoor">${t('parking.outdoor')}</span>`;
+        }
+
+        // --- 4. HTML ---
         content += `
         <div class="parkingItem" style="border:1px solid #ccc; padding:10px; border-radius:8px; margin-bottom:10px;">
-            <h4>${destAddress}</h4>
+            <h4>${nomParking}</h4>
+            
             <p><strong data-i18n="result.distance">${t('result.distance')}</strong> ${distance} m</p>
             <p><strong data-i18n="result.duration">${t('result.duration')}</strong> ${duration}</p>
-            <p><strong data-i18n="result.pricing">${t('result.pricing')}</strong> ${ pricing ? capitalizeFirstLetter(pricing) : "Gratuit"}</p>
-            <p><strong data-i18n="result.type">${t('result.type')}</strong> ${ type ? capitalizeFirstLetter(type) : "Extérieur"}</p>
+            
+            <p><strong data-i18n="result.pricing">${t('result.pricing')}</strong> ${pricingHTML}</p>
+            <p><strong data-i18n="result.type">${t('result.type')}</strong> ${typeHTML}</p>
             
             ${mode !== "address" ? 
-                // Bouton "Y aller" avec data-i18n
-                `<button class="showMapBtn" data-i18n="btn.go" data-index="${closeParkings.indexOf(parking)}" data-distance="${distance}" data-duration="${duration}" data-dest="${destAddress}">${t('btn.go')}</button>` 
+                `<button class="showMapBtn" data-i18n="btn.go" 
+                    data-index="${closeParkings.indexOf(parking)}" 
+                    data-distance="${distance}" 
+                    data-duration="${duration}" 
+                    data-dest="${nomParking}">
+                    ${t('btn.go')}
+                </button>` 
                 : ""}
             
             <a href="${mapsURL}" target="_blank"><button data-i18n="btn.gmaps">${t('btn.gmaps')}</button></a>
@@ -81,6 +147,7 @@ function showParkingResult({response, closeParkings}, userCoords) {
     result.innerHTML = content;
     result.style.display = 'block';
 
+    // --- 5. GESTION DES CLICS ---
     document.querySelectorAll('.showMapBtn').forEach((btn) => {
         const index = parseInt(btn.getAttribute('data-index'));
         const parking = closeParkings[index];
@@ -89,7 +156,6 @@ function showParkingResult({response, closeParkings}, userCoords) {
         const destName = btn.getAttribute('data-dest');
         
         btn.addEventListener('click', async () => {
-            // Enregistrer le trajet si l'utilisateur est connecté
             if (isLoggedIn()) {
                 try {
                     await saveTrajet({
@@ -105,14 +171,11 @@ function showParkingResult({response, closeParkings}, userCoords) {
                 }
             }
             
-            // Cacher la liste des parkings
             result.style.display = 'none';
-            // Lancer la map et le guidage
             showMap(userCoords, parking.coords);
         });
     });
 }
-
 async function onLocate() {
     mode = "gps";
     // Texte traduit via t()

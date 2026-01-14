@@ -25,6 +25,10 @@ const translations = {
         "result.pricing": "Tarif",                       
         "result.type": "Type",                           
         "result.places": "Places",
+        "parking.free": "Gratuit",
+        "parking.paid": "Payant",
+        "parking.indoor": "Souterrain",
+        "parking.outdoor": "Aérien",
         "btn.go": "Y aller (App)",                       
         "btn.gmaps": "Voir sur Maps",                    
         "status.locating": "Géolocalisation en cours...",
@@ -49,11 +53,15 @@ const translations = {
         "auth.registering": "Inscription en cours...",
         "auth.registerSuccess": "Inscription réussie !",
 
-        // MODAL DÉCONNEXION 
+        // MODAL 
         "modal.logout_title": "Déconnexion",
         "modal.logout_message": "Voulez-vous vraiment vous déconnecter ?",
         "btn.confirm_logout": "Se déconnecter",
         "btn.cancel": "Annuler",
+        "btn.stop_navigation": "Arrêter le guidage",
+        "modal.stop_title": "Arrêter le guidage ?",
+        "modal.stop_message": "Voulez-vous vraiment arrêter et retourner à l'accueil ?",
+        "btn.confirm_stop": "Arrêter",
         
         // Placeholders
         "auth.placeholderName": "Votre nom",
@@ -125,11 +133,14 @@ const translations = {
         "result.current_pos": "Your position:",
         "result.closest_parkings": "5 nearest parking :",
         "result.distance": "Distance",
-        "result.duration": "Duration",
-        "result.pricing": "Price",
+        "result.duration": "Time estimated",
+        "result.pricing": "Pricing",
         "result.type": "Type",
         "result.places": "Spaces",
-        
+        "parking.free": "Free",
+        "parking.paid": "Paid",
+        "parking.indoor": "Underground",
+        "parking.outdoor": "Outdoor",        
         "btn.go": "Go (App)",
         "btn.gmaps": "See on Maps",
 
@@ -154,11 +165,14 @@ const translations = {
         "auth.registering": "Registering...",
         "auth.registerSuccess": "Registration successful!",
 
-        // --- NEW: LOGOUT MODAL ---
         "modal.logout_title": "Sign Out",
         "modal.logout_message": "Are you sure you want to sign out?",
         "btn.confirm_logout": "Sign Out",
         "btn.cancel": "Cancel",
+        "btn.stop_navigation": "Stop Navigation",
+        "modal.stop_title": "Stop Navigation?",
+        "modal.stop_message": "Do you really want to stop and return home?",
+        "btn.confirm_stop": "Stop",
 
         "auth.placeholderName": "Your last name",
         "auth.placeholderFirstName": "Your first name",

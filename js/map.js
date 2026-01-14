@@ -21,6 +21,12 @@ function distanceMeters(lat1, lng1, lat2, lng2) {
 }
 
 function showMap(userLatLng, destinationCoords) {
+    document.getElementById('map').style.display = 'block';
+    
+    // On s'assure que le bouton "Arrêter le guidage" apparaît
+    const btn = document.getElementById('stopBtn');
+    if(btn) btn.style.display = 'block';
+
     destination = destinationCoords;
 
     mapDiv.style.display = 'block';
@@ -227,3 +233,4 @@ function recalcRoute(userPos){
     stopRealtimeTracking();
     calculateRoute(userPos, destination);
 }
+
