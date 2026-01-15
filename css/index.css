@@ -1,16 +1,19 @@
-/* --- INDEX : Map & Résultats --- */
+/* INDEX : Map & Résultats */
 
 #map { 
     height: 400px; width: 100%; 
     border-radius: 0.5rem; margin-top: 1.5rem; 
 }
 
+
+.start-point-box {
+    background: #e8f5e9; padding: 10px; border-radius: 8px; 
+    margin-bottom: 15px; border: 1px solid #c8e6c9;
+}
+
 .parkingItem {
-    background-color: #ffffff;
-    border-left: 6px solid #66bb6a;
-    padding: 15px 18px;
-    border-radius: 12px;
-    margin-bottom: 15px;
+    background-color: #ffffff; border-left: 6px solid #66bb6a;
+    padding: 15px 18px; border-radius: 12px; margin-bottom: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .parkingItem h4 { margin: 0 0 6px 0; color: #2e7d32; font-size: 1.1rem; }
@@ -19,3 +22,4 @@
 /* Dark Mode Index */
 body.darkmode .parkingItem { background-color: #2d2d2d; border-left-color: #81c784; }
 body.darkmode .parkingItem h4 { color: #a5d6a7; }
+body.darkmode .start-point-box { background: #2d2d2d; border-color: #444; color: #eee; }

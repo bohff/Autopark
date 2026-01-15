@@ -50,7 +50,7 @@ async function reverseGeocode(lat, lng) {
     return jsonRes;
 }
 
-// --- FONCTION CORRIGÉE POUR BIG BEN & AUTRES ---
+//  FONCTION CORRIGÉE POUR BIG BEN & AUTRES 
 async function detectCity(lat, lng) {
     const geoData = await reverseGeocode(lat, lng);
     const address = geoData.address;
@@ -58,31 +58,31 @@ async function detectCity(lat, lng) {
     // Debug : permet de voir ce que l'API renvoie vraiment (F12 > Console)
     console.log("📍 Données géographiques reçues :", address);
 
-    // 1. On rassemble TOUS les champs susceptibles de contenir le nom de la ville ou du quartier
-    // Nominatim est capricieux : parfois c'est 'city', parfois 'suburb' (pour Big Ben), parfois 'county'
+    
+    
     const locationFields = [
         address.city,
         address.town,
         address.municipality,
-        address.suburb,          // Crucial pour Westminster / Big Ben
+        address.suburb,          
         address.neighbourhood,
-        address.borough,         // Spécifique aux arrondissements
+        address.borough,         
         address.city_district,
-        address.state_district,  // Souvent "Greater London"
+        address.state_district,  
         address.county
-    ].filter(val => val).map(val => val.toLowerCase()); // On nettoie et on met en minuscules
+    ].filter(val => val).map(val => val.toLowerCase()); 
 
     // Fonction utilitaire : vérifie si un de nos champs contient un mot clé
     const checkLocation = (keywords) => locationFields.some(field => 
         keywords.some(key => field.includes(key.toLowerCase()))
     );
 
-    // --- TEST METZ ---
+    //  TEST METZ 
     if (checkLocation(['Metz'])) {
         return { city: 'metz' };
     }
     
-    // --- TEST LONDRES ---
+    //  TEST LONDRES 
     const isUK = address.country_code === 'gb' || address.country === 'United Kingdom' || address.country === 'Royaume-Uni';
     
     if (isUK) {

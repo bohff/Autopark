@@ -13,9 +13,8 @@ async function initHeader() {
     let headerHTML = '';
 
     if (isLoggedIn()) {
-        // ============================
-        // --- UTILISATEUR CONNECTÉ ---
-        // ============================
+        // UTILISATEUR CONNECTÉ 
+
         
         headerHTML = `
             <div class="header-left">
@@ -39,8 +38,8 @@ async function initHeader() {
             </div>
         `;
 
-        // --- INJECTION DE LA FENÊTRE MODALE (Cachée par défaut) ---
-        // On l'ajoute à la fin du body pour être sûr qu'elle soit au-dessus de tout
+        //  INJECTION DE LA FENÊTRE MODALE (Cachée par défaut) 
+        
         const logoutModalHTML = `
             <div id="logoutModal" class="modal-overlay" style="display:none;">
                 <div class="modal-box">
@@ -54,12 +53,12 @@ async function initHeader() {
             </div>
         `;
         
-        // On vérifie si la modal existe déjà pour éviter les doublons
+    
         if (!document.getElementById('logoutModal')) {
             document.body.insertAdjacentHTML('beforeend', logoutModalHTML);
         }
 
-        // --- CHARGEMENT DES DONNÉES (Nom + Darkmode) ---
+
         setTimeout(async () => {
             try {
                 if(typeof getCompte === 'function'){
@@ -78,9 +77,8 @@ async function initHeader() {
         }
 
     } else {
-        // ===================================
-        // --- VISITEUR (NON CONNECTÉ) ---
-        // ===================================
+
+        // VISITEUR (NON CONNECTÉ) 
         headerHTML = `
             <div class="header-left">
                 <a href="index.html" class="logo">Autopark</a>
@@ -93,25 +91,23 @@ async function initHeader() {
         `;
     }
 
-    // Injection du Header dans le DOM
+
     header.innerHTML = headerHTML;
-    
-    // Nettoyage de l'ancien header s'il existe
+
     const existingHeader = document.getElementById('mainHeader');
     if (existingHeader) existingHeader.remove();
 
     document.body.insertBefore(header, document.body.firstChild);
     
-    // ==========================================
-    // --- GESTION DES CLICS (MODAL LOGOUT) ---
-    // ==========================================
+    //  GESTION DES CLICS (MODAL LOGOUT) 
+
     if (isLoggedIn()) {
         const logoutBtn = document.getElementById('headerLogoutBtn');
         const logoutModal = document.getElementById('logoutModal');
         const btnCancel = document.getElementById('btnCancelLogout');
         const btnConfirm = document.getElementById('btnConfirmLogout');
 
-        // 1. Clic sur le bouton rouge -> Ouvre la fenêtre
+        //Clic sur le bouton rouge -> Ouvre la fenêtre
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -119,14 +115,14 @@ async function initHeader() {
             });
         }
 
-        // 2. Clic sur Annuler -> Ferme la fenêtre
+        //Clic sur Annuler -> Ferme la fenêtre
         if (btnCancel) {
             btnCancel.addEventListener('click', () => {
                 logoutModal.style.display = 'none';
             });
         }
 
-        // 3. Clic sur Confirmer -> Déconnecte vraiment
+        //Clic sur Confirmer -> Déconnecte vraiment
         if (btnConfirm) {
             btnConfirm.addEventListener('click', () => {
                 if (typeof logout === 'function') {

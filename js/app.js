@@ -53,7 +53,7 @@ if (stopBtn) {
     });
 }
 
-// 2. Quand on clique sur Annuler
+// Quand on clique sur Annuler
 if (btnCancelStop) {
     btnCancelStop.addEventListener('click', () => {
         // On cache juste la fenêtre, le guidage continue
@@ -61,13 +61,11 @@ if (btnCancelStop) {
     });
 }
 
-// 3. Quand on clique sur Confirmer l'arrêt
+// Quand on clique sur Confirmer l'arrêt
 if (btnConfirmStop) {
     btnConfirmStop.addEventListener('click', () => {
         // On cache la fenêtre
         stopModal.style.display = 'none';
-        
-        // C'EST ICI QU'ON RENVOIE VERS L'ACCUEIL / RECHARGE LA PAGE
         window.location.href = "index.html"; 
     });
 }
@@ -76,7 +74,7 @@ function showParkingResult({response, closeParkings}, userCoords) {
     // Cacher le formulaire
     formContainer.style.display = 'none';
 
-    // 1. Titres
+    // Titres
     let content = `<h3><span data-i18n="result.current_pos">${t('result.current_pos')}</span> ${response.originAddresses[0]}</h3>`;
     content += `<p><strong data-i18n="result.closest_parkings">${t('result.closest_parkings')}</strong></p>`;
 
@@ -92,16 +90,15 @@ function showParkingResult({response, closeParkings}, userCoords) {
         const pricingRaw = props.cout; 
         const typeRaw = props.typ;
 
-        // --- 2. LOGIQUE NOM DU PARKING ---
+        //  LOGIQUE NOM DU PARKING
         const nomParking = props.LIB || props.lib || props.nom || props.commonName || destAddress;
 
-        // --- 3. LOGIQUE PRIX & TYPE (VERSION DYNAMIQUE) ---
-        // On crée des balises <span> avec data-i18n pour que la traduction marche en direct
+  
         
         // PRIX
         let pricingHTML;
         if (pricingRaw === 'gratuit' || !pricingRaw) {
-            // C'est ici le secret : on met un SPAN avec data-i18n="parking.free"
+            
             pricingHTML = `<span data-i18n="parking.free">${t('parking.free')}</span>`;
         } else if (pricingRaw === 'payant') {
             pricingHTML = `<span data-i18n="parking.paid">${t('parking.paid')}</span>`;
@@ -118,7 +115,6 @@ function showParkingResult({response, closeParkings}, userCoords) {
             typeHTML = `<span data-i18n="parking.outdoor">${t('parking.outdoor')}</span>`;
         }
 
-        // --- 4. HTML ---
         content += `
         <div class="parkingItem" style="border:1px solid #ccc; padding:10px; border-radius:8px; margin-bottom:10px;">
             <h4>${nomParking}</h4>
@@ -147,7 +143,7 @@ function showParkingResult({response, closeParkings}, userCoords) {
     result.innerHTML = content;
     result.style.display = 'block';
 
-    // --- 5. GESTION DES CLICS ---
+    // GESTION DES CLICS 
     document.querySelectorAll('.showMapBtn').forEach((btn) => {
         const index = parseInt(btn.getAttribute('data-index'));
         const parking = closeParkings[index];

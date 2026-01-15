@@ -17,7 +17,7 @@ const translations = {
         "home.placeholder": "Ex: 1 Rue de la République, Metz",
         "home.choose_option": "Choisissez une option ci-dessus.", 
 
-        // --- RESULTATS --
+        // RESULTATS 
         "result.current_pos": "Votre position :",       
         "result.closest_parkings": "Voici les 5 Parkings les plus proches :", 
         "result.distance": "Distance",
@@ -111,7 +111,17 @@ const translations = {
         "error.api_error": "Erreur de connexion API.",
         "error.timeout": "Délai d'attente dépassé.",
         "error.google_quota": "Quota Google Maps dépassé.",
-        "error.google_generic": "Erreur Google Maps."
+        "error.google_generic": "Erreur Google Maps.",
+
+        // SUCCÈS PROFIL
+        "profile.success_update": "Profil mis à jour avec succès !",
+        "profile.success_pass": "Mot de passe modifié avec succès !",
+        "profile.pass_mismatch": "Les mots de passe ne correspondent pas.",
+
+        // ERREURS API (Mappage des erreurs serveur fréquentes)
+        "Ancien mot de passe incorrect": "Ancien mot de passe incorrect",
+        "Utilisateur non trouvé": "Utilisateur non trouvé",
+        "Email déjà utilisé": "Cet email est déjà utilisé"
     },
     en: {
         "nav.home": "Home",
@@ -218,7 +228,15 @@ const translations = {
         "error.api_error": "API Connection Error.",
         "error.timeout": "Request timed out.",
         "error.google_quota": "Google Maps Quota Exceeded.",
-        "error.google_generic": "Google Maps Error."
+        "error.google_generic": "Google Maps Error.",
+
+        "profile.success_update": "Profile updated successfully!",
+        "profile.success_pass": "Password changed successfully!",
+        "profile.pass_mismatch": "Passwords do not match.",
+
+        "Ancien mot de passe incorrect": "Old password incorrect",
+        "Utilisateur non trouvé": "User not found",
+        "Email déjà utilisé": "Email already in use"
     }
 };
 

@@ -12,20 +12,20 @@
 </head>
 <body>
     
-    <div id="formContainer" style="max-width: 900px;">
+    <div id="formContainer" class="form-container-large">
         <h1 data-i18n="history.title">Historique des trajets</h1>
         
-        <div id="historiqueMap" style="width: 100%; height: 400px; border-radius: 8px; margin-bottom: 20px;"></div>
+        <div id="historiqueMap"></div>
         
-        <div id="historiqueList" style="margin-bottom: 20px;">
+        <div id="historiqueList">
             <h3 data-i18n="history.list">Liste des trajets :</h3>
             <div id="trajetsContainer"></div>
         </div>
         
-        <p style="text-align: center">
+        <p class="text-center">
             <a href="index.html" class="btn-back-home">
                 <i class="fas fa-home"></i>
-            <span data-i18n="auth.backHome">Retour à l'accueil</span>
+                <span data-i18n="auth.backHome">Retour à l'accueil</span>
             </a>
         </p>
     </div>
@@ -35,102 +35,76 @@
     <script src="./js/header.js"></script>
     <script src="./js/footer.js"></script>
     <script>
-        //1. Sécurité réactivée : Redirection si pas connecté
-        if (!isLoggedIn()) {
-            window.location.href = 'connexion.html';
-        }
+        if (!isLoggedIn()) window.location.href = 'connexion.html';
         
         async function loadHistorique() {
             const mapContainer = document.getElementById('historiqueMap');
             const listContainer = document.getElementById('trajetsContainer');
-            
-            // Récupérer la langue actuelle pour le format de date
             const currentLang = localStorage.getItem('autopark_lang') || 'fr';
             const locale = currentLang === 'en' ? 'en-GB' : 'fr-FR';
             
             try {
                 const trajets = await getHistorique();
-                
-                // Tri par date décroissante (plus récent en premier)
                 trajets.sort((a, b) => new Date(b.date_trajet) - new Date(a.date_trajet));
                 
                 if (trajets.length === 0) {
-                    // Message "Aucun trajet" traduit
-                    listContainer.innerHTML = `<p style="color:#666;" data-i18n="history.empty">${t('history.empty')}</p>`;
+                    listContainer.innerHTML = `<p class="text-grey" data-i18n="history.empty">${t('history.empty')}</p>`;
                 } else {
-                    let html = '<ul style="list-style: none; padding: 0;">';
+                    let html = '<ul>';
                     trajets.forEach(trajet => {
-                        // Formatage de la date selon la langue
                         const dateObj = new Date(trajet.date_trajet);
                         const dateStr = dateObj.toLocaleDateString(locale) + ' ' + dateObj.toLocaleTimeString(locale, {hour: '2-digit', minute:'2-digit'});
                         
-                        // Injection HTML avec textes dynamiques
-                        html += `<li style="padding: 10px; border-bottom: 1px solid #eee;">
+                        // J'ai aussi déplacé le style inline dans historique.css
+                        html += `<li>
                             <strong>${trajet.destination_nom || t('history.unknown')}</strong><br>
-                            <small>📅 ${dateStr} | ⏱️ ${trajet.duree} | 📏 ${trajet.distance} m</small><br>
-                            <small style="color:#666;">📍 ${trajet.origine || t('history.unknown')}</small>
+                            <small class="history-date">📅 ${dateStr} | ⏱️ ${trajet.duree} | 📏 ${trajet.distance} m</small><br>
+                            <small class="history-location">📍 ${trajet.origine || t('history.unknown')}</small>
                         </li>`;
                     });
                     html += '</ul>';
                     listContainer.innerHTML = html;
                 }
                 
-                // --- Initialisation de la Map ---
                 const map = new google.maps.Map(mapContainer, {
-                    zoom: 12,
-                    center: { lat: 49.1193, lng: 6.1757 }, // Centre par défaut (Metz)
-                    mapTypeControl: false, 
-                    streetViewControl: false, 
-                    fullscreenControl: false
+                    zoom: 12, center: { lat: 49.1193, lng: 6.1757 }, 
+                    mapTypeControl: false, streetViewControl: false, fullscreenControl: false
                 });
-                
                 const bounds = new google.maps.LatLngBounds();
                 const compteurVisites = {};
                 
-                // Compter les visites par destination
                 trajets.forEach(trajet => {
                     const nom = trajet.destination_nom;
                     compteurVisites[nom] = (compteurVisites[nom] || 0) + 1;
                 });
                 
                 const parkingsAffiches = [];
-                
                 trajets.forEach(trajet => {
-                    // Éviter les doublons de marqueurs pour le même parking
                     if (parkingsAffiches.includes(trajet.destination_nom)) return;
                     parkingsAffiches.push(trajet.destination_nom);
                     
                     const position = { lat: trajet.destination_lat, lng: trajet.destination_lng };
                     const visites = compteurVisites[trajet.destination_nom];
-                    const wordVisits = t('history.visits'); // "visites" ou "visits"
+                    const wordVisits = t('history.visits');
                     
                     const marker = new google.maps.Marker({
-                        position: position, 
-                        map: map, 
-                        title: trajet.destination_nom
+                        position: position, map: map, title: trajet.destination_nom
                     });
                     
                     const infoWindow = new google.maps.InfoWindow({
                         content: `<div style="color:#333;"><strong>${trajet.destination_nom}</strong><br>${visites} ${wordVisits}</div>`
                     });
-                    
                     marker.addListener('click', () => infoWindow.open(map, marker));
                     bounds.extend(position);
                 });
-                
-                // Ajuster la carte pour tout voir s'il y a des trajets
-                if (trajets.length > 0) {
-                    map.fitBounds(bounds);
-                }
+                if (trajets.length > 0) map.fitBounds(bounds);
             
             } catch (error) {
                 console.error('Erreur chargement historique:', error);
-                // Message d'erreur traduit
-                mapContainer.innerHTML = `<p class="error" style="text-align:center; padding:50px;" data-i18n="error.history_fetch">${t('error.history_fetch')}</p>`;
+                mapContainer.innerHTML = `<p class="error text-center" style="padding:50px;" data-i18n="error.history_fetch">${t('error.history_fetch')}</p>`;
                 listContainer.innerHTML = '';
             }
         }
-        
         loadHistorique();
     </script>
 </body>

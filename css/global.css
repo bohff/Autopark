@@ -1,4 +1,4 @@
-/* --- GLOBAL : Body, Header, Nav Mobile, Dark Mode Base --- */
+/* GLOBAL : Body, Header, Nav Mobile, Dark Mode Base  */
 
 /* Body & Layout */
 body {
@@ -69,10 +69,12 @@ body {
     border: 1px solid #2e7d32; border-radius: 6px; background-color: white;
     font-size: 13px; font-weight: 600; color: #1a3d1a; cursor: pointer; line-height: 1;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%232e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
-    background-repeat: no-repeat; background-position: right 6px center; background-size: 14px;
+    background-repeat: no-repeat; 
+    background-position: right 5px center; /* Flèche à droite */
+    background-size: 14px;
 }
 
-/* Navigation Mobile (Bas) - Visible par défaut sur mobile */
+/* Navigation Mobile (Bas) */
 .mobile-bottom-nav {
     position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
     background-color: #ffffff; display: flex; justify-content: space-around;
@@ -99,62 +101,40 @@ body.darkmode .lang-select {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2381c784" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
 }
 
-/* --- MODAL DE CONFIRMATION (Style Générique) --- */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); 
-    z-index: 2000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+/* Classes Utilitaires */
+.text-center { text-align: center; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.text-grey { color: #666; }
+.text-small { font-size: 0.9rem; }
+.text-success { color: green; }
+.hidden { display: none; }
 
+/* MODAL DE CONFIRMATION (Style Générique) */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); z-index: 2000;
+    display: none; 
+    justify-content: center; align-items: center;
+}
 .modal-box {
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    width: 85%;
-    max-width: 350px;
-    text-align: center;
+    background: white; padding: 25px; border-radius: 15px;
+    width: 85%; max-width: 350px; text-align: center;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
-
 .modal-box h3 { margin-top: 0; color: #2e7d32; }
 .modal-box p { color: #555; margin-bottom: 20px; }
-
-.modal-buttons {
-    display: flex;
-    gap: 15px; /* Espace entre les boutons */
-    justify-content: center;
-}
-
-/* Bouton Annuler (Gris) */
+.modal-buttons { display: flex; gap: 15px; justify-content: center; }
 .btn-modal-cancel {
-    background: #e0e0e0;
-    color: #333;
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
+    background: #e0e0e0; color: #333; flex: 1; padding: 10px;
+    border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s;
 }
 .btn-modal-cancel:hover { background: #d5d5d5; }
-
-/* Bouton Confirmer (Rouge pour la déconnexion) */
 .btn-modal-confirm {
-    background: #c62828;
-    color: white;
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
+    background: #c62828; color: white; flex: 1; padding: 10px;
+    border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s;
 }
 .btn-modal-confirm:hover { background: #b71c1c; }
 
@@ -165,25 +145,9 @@ body.darkmode .modal-box p { color: #ddd; }
 body.darkmode .btn-modal-cancel { background: #444; color: #fff; }
 body.darkmode .btn-modal-cancel:hover { background: #555; }
 
-
-
-/* GESTION RESPONSIVE (MOBILE vs PC) */
-
-
+/* GESTION RESPONSIVE */
 @media (min-width: 768px) {
-    /* 1. On AFFICHE le menu du haut */
-    #mainHeader .header-nav { 
-        display: flex !important; 
-        gap: 20px; 
-    }
-
-    /* 2. On CACHE la barre du bas */
-    .mobile-bottom-nav {
-        display: none !important;
-    }
-
-    /* 3. On ajuste le padding du body pour ne pas avoir de vide en bas */
-    body {
-        padding-bottom: 20px !important;
-    }
+    #mainHeader .header-nav { display: flex !important; gap: 20px; }
+    .mobile-bottom-nav { display: none !important; }
+    body { padding-bottom: 20px !important; }
 }

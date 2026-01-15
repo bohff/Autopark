@@ -23,7 +23,6 @@ function distanceMeters(lat1, lng1, lat2, lng2) {
 function showMap(userLatLng, destinationCoords) {
     document.getElementById('map').style.display = 'block';
     
-    // On s'assure que le bouton "Arrêter le guidage" apparaît
     const btn = document.getElementById('stopBtn');
     if(btn) btn.style.display = 'block';
 
@@ -109,11 +108,10 @@ async function calculateRoute(origin, destination) {
         updatePolylines(origin);
         startRealtimeTracking();
     } catch (error) {
-        // --- MODIFICATION 1 : Gestion des erreurs avec traduction ---
+
         if (error.message && error.message.includes('OVER_QUERY_LIMIT')) {
             showRouteError(t('error.google_quota'));
         } else {
-            // Utilise la clé 'nav.error_calculation' définie dans lang.js
             showRouteError(t('nav.error_calculation'));
         }
     }
@@ -128,7 +126,6 @@ function initializePolylines() {
 }
 
 function showRouteError(message) {
-    // --- MODIFICATION 2 : Titre de l'erreur traduit ---
     panelDiv.innerHTML = `
         <div style="padding: 15px; background: #ffebee; border-radius: 8px; color: #c62828;">
             <strong>${t('nav.error_title')}</strong><br/>
@@ -221,7 +218,6 @@ function onArrived() {
         remainingPolyline = null;
     }
     if (panelDiv) {
-        // --- MODIFICATION 3 : Message d'arrivée traduit ---
         panelDiv.innerHTML = `
             <strong>${t('nav.arrived')}</strong><br/>
             ${t('nav.thanks')}

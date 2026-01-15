@@ -6,11 +6,7 @@
     <title>Autopark - Connexion</title>
     <link rel="stylesheet" href="./css/global.css" />
     <link rel="stylesheet" href="./css/forms.css" />
-    
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   </head>
   <body>
     <div id="formContainer">
@@ -19,39 +15,25 @@
       <form id="loginForm">
         <div>
           <label for="email" data-i18n="auth.email">Email</label>
-          <input
-            type="email"
-            id="email"
-            data-i18n="auth.placeholderEmail"
-            placeholder="votre@email.com"
-            required
-          />
+          <input type="email" id="email" data-i18n="auth.placeholderEmail" placeholder="votre@email.com" required />
         </div>
 
         <div>
           <label for="password" data-i18n="auth.password">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            data-i18n="auth.placeholderPassLogin"
-            placeholder="Votre mot de passe"
-            required
-          />
+          <input type="password" id="password" data-i18n="auth.placeholderPassLogin" placeholder="Votre mot de passe" required />
         </div>
 
-        <button type="submit" id="loginBtn" data-i18n="auth.submitLogin">
-          Se connecter
-        </button>
+        <button type="submit" id="loginBtn" data-i18n="auth.submitLogin">Se connecter</button>
       </form>
 
       <div id="message"></div>
 
-      <p style="text-align: center; margin-top: 20px">
+      <p class="text-center mt-20">
         <span data-i18n="auth.noAccount">Pas encore de compte ?</span>
-        <a href="inscription.html" data-i18n="auth.registerTitle" style="color:#2e7d32; font-weight:bold;">S'inscrire</a>
+        <a href="inscription.html" class="link-auth" data-i18n="auth.registerTitle">S'inscrire</a>
       </p>
       
-      <p style="text-align: center">
+      <p class="text-center">
         <a href="index.html" class="btn-back-home">
             <i class="fas fa-home"></i>
             <span data-i18n="auth.backHome">Retour à l'accueil</span>
@@ -63,17 +45,11 @@
     <script src="./js/auth.js"></script>
     <script src="./js/header.js"></script>
     <script src="./js/footer.js"></script>
-    
     <script>
-      if (isLoggedIn()) {
-        window.location.href = "index.html";
-      }
+      if (isLoggedIn()) window.location.href = "index.html";
 
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", async (e) => {
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
           e.preventDefault();
-
           const email = document.getElementById("email").value;
           const password = document.getElementById("password").value;
           const messageDiv = document.getElementById("message");
@@ -81,20 +57,16 @@
           try {
             messageDiv.innerHTML = `<p>${t('auth.loggingIn')}</p>`;
             await login(email, password);
-
             if (isLoggedIn()) {
-                messageDiv.innerHTML = `<p style="color: green;">${t('auth.loginSuccess')}</p>`;
-                setTimeout(() => {
-                    window.location.href = "index.html";
-                }, 1000);
+                messageDiv.innerHTML = `<p class="success-msg">${t('auth.loginSuccess')}</p>`;
+                setTimeout(() => { window.location.href = "index.html"; }, 1000);
             } else {
                 throw new Error("Erreur technique: Session non sauvegardée.");
             }
-
           } catch (error) {
             messageDiv.innerHTML = `<p class="error">${error.message}</p>`;
           }
-        });
+      });
     </script>
   </body>
 </html>

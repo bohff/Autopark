@@ -9,13 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    
     <div id="formContainer">
         <h1 data-i18n="profile.preferences">Préférences</h1>
-        
         <form id="prefsForm">
             <h3 data-i18n="profile.filters">Filtres</h3>
-            
             <div>
                 <label for="tarification" data-i18n="profile.pricing">Tarification</label>
                 <select id="tarification">
@@ -24,7 +21,6 @@
                     <option value="payant" data-i18n="filter.paid">Payant uniquement</option>
                 </select>
             </div>
-            
             <div>
                 <label for="type_parking" data-i18n="profile.parkingType">Type de parking</label>
                 <select id="type_parking">
@@ -35,17 +31,14 @@
             </div>
             
             <h3 data-i18n="profile.display">Affichage</h3>
-            
             <div class="checkboxGroup">
                 <label>
                     <input type="checkbox" id="darkmode">
                     <span data-i18n="profile.darkmode">Mode sombre</span>
                 </label>
             </div>
-            
             <button type="submit" id="saveBtn" data-i18n="profile.save">Enregistrer</button>
         </form>
-        
         <div id="message"></div>
     </div>
     
@@ -54,9 +47,7 @@
     <script src="./js/header.js"></script>
     <script src="./js/footer.js"></script>
     <script>
-        //Sécurité réactivée si besoin
-        if (!isLoggedIn()) { window.location.href = 'connexion.html'; }
-        
+        if (!isLoggedIn()) window.location.href = 'connexion.html';
         const messageDiv = document.getElementById('message');
         
         async function loadPrefs() {
@@ -65,14 +56,10 @@
                 document.getElementById('tarification').value = profil.tarification || 'tous';
                 document.getElementById('type_parking').value = profil.type_parking || 'tous';
                 document.getElementById('darkmode').checked = profil.darkmode || false;
-                
                 if (profil.darkmode) document.body.classList.add('darkmode');
-            } catch (error) {
-                console.error("Erreur chargement prefs:", error);
-            }
+            } catch (error) { console.error("Erreur chargement prefs:", error); }
         }
         
-        // Appliquer le mode sombre en direct quand on coche la case
         document.getElementById('darkmode').addEventListener('change', (e) => {
             if(e.target.checked) document.body.classList.add('darkmode');
             else document.body.classList.remove('darkmode');
@@ -87,15 +74,12 @@
             };
             try {
                 await updateProfil(prefsData);
-                // --- TRADUCTION DU SUCCÈS ICI ---
-                messageDiv.innerHTML = `<p style="color: green;">${t('profile.success')}</p>`;
+                messageDiv.innerHTML = `<p class="success-msg">${t('profile.success')}</p>`;
                 setTimeout(() => messageDiv.innerHTML = '', 3000);
             } catch (error) {
-                // --- TRADUCTION DE L'ERREUR ICI ---
                 messageDiv.innerHTML = `<p class="error">${t(error.message)}</p>`;
             }
         });
-        
         loadPrefs();
     </script>
 </body>

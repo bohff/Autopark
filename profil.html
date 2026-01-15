@@ -15,45 +15,37 @@
         
         <form id="compteForm">
             <h3 data-i18n="profile.myAccount">Informations</h3>
-            
             <div>
                 <label for="email" data-i18n="auth.email">Email</label>
-                <input type="email" id="email" disabled style="background:#eee; cursor:not-allowed;">
+                <input type="email" id="email" disabled>
             </div>
-            
             <div>
                 <label for="prenom" data-i18n="auth.prenom">Prénom</label>
                 <input type="text" id="prenom" required minlength="2">
             </div>
-            
             <div>
                 <label for="nom" data-i18n="auth.nom">Nom</label>
                 <input type="text" id="nom" required minlength="2">
             </div>
-            
             <button type="submit" data-i18n="profile.update">Mettre à jour</button>
         </form>
         
         <div id="messageCompte"></div>
         
-        <form id="passwordForm" style="margin-top: 30px;">
+        <form id="passwordForm" class="mt-30">
             <h3 data-i18n="profile.changePass">Sécurité</h3>
-            
             <div>
                 <label for="ancienPassword" data-i18n="auth.password">Mot de passe actuel</label>
                 <input type="password" id="ancienPassword" required>
             </div>
-            
             <div>
                 <label for="nouveauPassword" data-i18n="auth.newPassword">Nouveau mot de passe</label>
                 <input type="password" id="nouveauPassword" required minlength="4">
             </div>
-            
             <div>
                 <label for="confirmPassword" data-i18n="auth.confirmPassword">Confirmer</label>
                 <input type="password" id="confirmPassword" required minlength="4">
             </div>
-            
             <button type="submit" data-i18n="profile.btn_change">Changer le mot de passe</button>
         </form>
         
@@ -65,7 +57,7 @@
     <script src="./js/header.js"></script>
     <script src="./js/footer.js"></script>
     <script>
-        if (!isLoggedIn()) { window.location.href = 'connexion.html'; }
+        if (!isLoggedIn()) window.location.href = 'connexion.html';
         
         const messageCompteDiv = document.getElementById('messageCompte');
         const messagePasswordDiv = document.getElementById('messagePassword');
@@ -76,25 +68,29 @@
                 document.getElementById('email').value = compte.email;
                 document.getElementById('nom').value = compte.nom;
                 document.getElementById('prenom').value = compte.prenom;
-            } catch (error) {
-                console.error(error);
-            }
+            } catch (error) { console.error(error); }
         }
         
+        // FORMULAIRE INFO PERSO
         document.getElementById('compteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nom = document.getElementById('nom').value.trim();
             const prenom = document.getElementById('prenom').value.trim();
+            
             try {
                 await updateCompte(nom, prenom);
-                messageCompteDiv.innerHTML = '<p style="color: green;">Modifié !</p>';
+                messageCompteDiv.innerHTML = `<p class="success-msg">${t('profile.success_update')}</p>`;
+                
                 const headerName = document.getElementById('userNameHeader');
-                if (headerName) headerName.textContent = `${prenom}`;
+                if (headerName) headerName.textContent = `${prenom} ${nom}`;
+                
+                setTimeout(() => messageCompteDiv.innerHTML = '', 3000);
             } catch (error) {
                 messageCompteDiv.innerHTML = `<p class="error">${error.message}</p>`;
             }
         });
         
+        // FORMULAIRE MOT DE PASSE
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const ancien = document.getElementById('ancienPassword').value;
@@ -102,13 +98,16 @@
             const confirm = document.getElementById('confirmPassword').value;
             
             if (nouveau !== confirm) {
-                messagePasswordDiv.innerHTML = '<p class="error">Mots de passe différents.</p>';
+                messagePasswordDiv.innerHTML = `<p class="error">${t('profile.pass_mismatch')}</p>`;
                 return;
             }
+            
             try {
                 await changePassword(ancien, nouveau);
-                messagePasswordDiv.innerHTML = '<p style="color: green;">Mot de passe modifié !</p>';
+                messagePasswordDiv.innerHTML = `<p class="success-msg">${t('profile.success_pass')}</p>`;
                 document.getElementById('passwordForm').reset();
+                
+                setTimeout(() => messagePasswordDiv.innerHTML = '', 3000);
             } catch (error) {
                 messagePasswordDiv.innerHTML = `<p class="error">${error.message}</p>`;
             }

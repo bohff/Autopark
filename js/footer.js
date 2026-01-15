@@ -5,7 +5,7 @@ async function initFooter() {
         return; 
     }
 
-    // --- CONNECTÉ : Affichage de la barre du bas ---
+    // CONNECTÉ : Affichage de la barre du bas 
     
     // Espace pour ne pas cacher le contenu
     document.body.style.paddingBottom = '80px';
@@ -37,7 +37,6 @@ async function initFooter() {
 
     mobileNav.innerHTML = mobileNavHTML;
 
-    // Nettoyage avant injection
     const existingNav = document.querySelector('.mobile-bottom-nav');
     if (existingNav) existingNav.remove();
 
@@ -45,7 +44,7 @@ async function initFooter() {
     
     highlightActiveLink();
 
-    // On relance la traduction pour être sûr que le footer soit traduit
+
     if(typeof updateLanguage === 'function') {
         const savedLang = localStorage.getItem('autopark_lang') || 'fr';
         updateLanguage(savedLang);
